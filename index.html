@@ -5,155 +5,579 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 </head>
 <body>
-<title>Familien-Essensplan</title>
+<title>Unser Mampf-Plan</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Nunito+Sans:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloria+Hallelujah&family=Patrick+Hand&display=swap">
 <style>
-/* Layout: Wochen-Raster (Tage als Karten, je 3 Mahlzeiten) + Einkaufsliste daneben, auf dem Handy untereinander */
+/* Layout: Malblock-Seite. Oben Titel + Wachsmalstift-Schachtel, darunter 7 Tages-Zeichnungen, rechts ein angeklebter Einkaufszettel.
+   Bewusst nur ein Look (weißes Malpapier), daher kein Dunkel-Modus. */
 :root {
-  --bg: #eef2ee;
-  --paper: #ffffff;
-  --ink: #1f2a24;
-  --muted: #5d6b63;
-  --line: #d5ddd7;
-  --basil: #2f6b4f;
-  --basil-soft: #dcebe2;
-  --mustard: #e3a92b;
-  --mustard-soft: #fbefd2;
-  --font-display: "Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
-  --font-body: "Nunito Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-}
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #141a17; --paper: #1c2420; --ink: #e6ede8; --muted: #9aaba1; --line: #2e3a34;
-  --basil: #7cc6a0; --basil-soft: #23382d; --mustard: #f0bd4f; --mustard-soft: #3a3020; color-scheme: dark;
-} }
-:root[data-theme="dark"] {
-  --bg: #141a17; --paper: #1c2420; --ink: #e6ede8; --muted: #9aaba1; --line: #2e3a34;
-  --basil: #7cc6a0; --basil-soft: #23382d; --mustard: #f0bd4f; --mustard-soft: #3a3020; color-scheme: dark;
+  color-scheme: light;
+  --paper: #fffdf6;
+  --ink: #2b2b2b;
+  --pencil: #77736a;
+  --tape: rgba(250, 226, 140, .78);
+  --lined: #cfe3f5;
+  --margin-red: #f4a3a3;
+  --rot: #e5383b; --orange: #f77f00; --gelb: #f9c22e; --gruen: #2a9d3f; --hellblau: #2fa4e7;
+  --blau: #3a5bd9; --lila: #8e44ad; --rosa: #ff5fa2; --braun: #8b5a2b; --schwarz: #2b2b2b;
+  --font-kid: "Gloria Hallelujah", "Comic Sans MS", "Chalkboard SE", cursive;
+  --font-hand: "Patrick Hand", "Comic Sans MS", "Chalkboard SE", cursive;
+  --wobble: 255px 18px 225px 20px / 20px 225px 18px 255px;
 }
 * { box-sizing: border-box; }
-body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.45; }
-.wrap { max-width: 1240px; margin: 0 auto; padding-inline: 16px; padding-block: 24px 48px; }
-header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 24px; margin-bottom: 20px; }
-h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(28px, 5vw, 42px); line-height: 1.05; margin: 0; letter-spacing: -0.02em; text-wrap: balance; }
-h1 span { color: var(--basil); }
-.sub { color: var(--muted); margin: 6px 0 0; }
-.status { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
-.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
-.dot.live { background: var(--basil); }
-.layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; align-items: start; }
-@media (max-width: 900px) { .layout { grid-template-columns: minmax(0, 1fr); } }
-.week { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
-.day { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-.day.today { border-color: var(--basil); box-shadow: 0 0 0 2px var(--basil-soft); }
-.day h2 { font-family: var(--font-display); font-weight: 700; font-size: 19px; margin: 0; display: flex; justify-content: space-between; align-items: baseline; }
-.day h2 small { font-family: var(--font-body); font-size: 12px; font-weight: 700; color: var(--basil); text-transform: uppercase; letter-spacing: .06em; }
-.meal { display: grid; gap: 2px; }
-.meal label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); display: flex; justify-content: space-between; align-items: center; }
-.meal input { width: 100%; font: inherit; color: var(--ink); background: var(--bg); border: 1px solid transparent; border-radius: 6px; padding: 7px 9px; }
-.meal input:hover { border-color: var(--line); }
-.meal input:focus { outline: none; border-color: var(--basil); background: var(--paper); }
-.idea { font: inherit; font-size: 11px; font-weight: 700; color: var(--basil); background: none; border: 0; padding: 2px 4px; border-radius: 4px; cursor: pointer; text-transform: none; letter-spacing: 0; }
-.idea:hover, .idea:focus-visible { background: var(--basil-soft); outline: none; }
-aside { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 16px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); }
-@media (max-width: 900px) { aside { position: static; } }
-aside h2 { font-family: var(--font-display); font-size: 21px; margin: 0 0 4px; }
-aside p { margin: 0 0 12px; color: var(--muted); font-size: 13px; }
-.add { display: flex; gap: 6px; margin-bottom: 12px; }
-.add input { flex: 1; min-width: 0; font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; }
-.add input:focus { outline: none; border-color: var(--basil); }
-.btn { font: inherit; font-weight: 700; border: 0; border-radius: 6px; padding: 8px 12px; cursor: pointer; background: var(--basil); color: var(--paper); }
-.btn:focus-visible { outline: 2px solid var(--mustard); outline-offset: 2px; }
-.btn.ghost { background: var(--mustard-soft); color: var(--ink); }
-ul.shop { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
-ul.shop li { display: flex; align-items: center; gap: 8px; padding: 6px 4px; border-bottom: 1px dashed var(--line); }
-ul.shop li.done span { text-decoration: line-through; color: var(--muted); }
-ul.shop input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--basil); flex: none; }
-ul.shop span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
-.del { background: none; border: 0; color: var(--muted); font-size: 18px; line-height: 1; cursor: pointer; padding: 2px 6px; border-radius: 4px; }
-.del:hover, .del:focus-visible { color: var(--ink); background: var(--bg); outline: none; }
-.empty { color: var(--muted); font-size: 13px; padding: 8px 0; }
-.tools { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-.note { margin-top: 16px; font-size: 12px; color: var(--muted); }
-@media (prefers-reduced-motion: no-preference) { .meal input { transition: border-color .15s, background .15s; } }
+html, body { background: var(--paper); }
+body {
+  color: var(--ink); font-family: var(--font-hand); font-size: 19px; line-height: 1.3;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(0,0,0,.025) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 70% 80%, rgba(0,0,0,.02) 0 1px, transparent 1.5px);
+  background-size: 7px 7px, 11px 11px;
+  overflow-x: hidden;
+}
+[hidden] { display: none !important; }
+h1 .word { white-space: nowrap; }
+.svg-defs { position: absolute; width: 0; height: 0; }
+.wrap { max-width: 1280px; margin: 0 auto; padding-inline: 16px; padding-block: 18px 60px; position: relative; }
+
+/* ---------- Kopf ---------- */
+header { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 24px; align-items: center; }
+h1 { font-family: var(--font-kid); font-weight: 400; font-size: clamp(38px, 7vw, 72px); line-height: 1.05; margin: 8px 0 0; text-wrap: balance; }
+h1 .l { display: inline-block; transform: rotate(var(--r, 0deg)) translateY(var(--y, 0px)); filter: url(#crayon); }
+@media (prefers-reduced-motion: no-preference) {
+  h1 .l { animation: hop .6s cubic-bezier(.3,1.6,.5,1) both; animation-delay: calc(var(--i) * 45ms); }
+  @keyframes hop { from { transform: translateY(-30px) rotate(-20deg); opacity: 0; } }
+}
+.tagline { font-family: var(--font-hand); font-size: 22px; color: var(--pencil); margin: 6px 0 0; transform: rotate(-1deg); }
+.sun { width: clamp(90px, 14vw, 150px); height: auto; filter: url(#crayon); }
+@media (prefers-reduced-motion: no-preference) { .sun .rays { transform-origin: 60px 60px; animation: spin 24s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } } }
+@media (max-width: 560px) { header { grid-template-columns: minmax(0, 1fr); } .sun { position: absolute; right: 8px; top: 4px; width: 80px; opacity: .9; } h1 { padding-right: 70px; } }
+
+/* ---------- Stifte-Schachtel ---------- */
+.box { margin: 18px 0 26px; display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 18px; }
+.box-label { font-family: var(--font-kid); font-size: 18px; transform: rotate(-3deg); }
+.crayons { display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-end; }
+.crayon { --c: var(--rot); width: 34px; height: 92px; padding: 0; border: 0; background: none; cursor: pointer; position: relative; transform: translateY(14px) rotate(var(--tilt, 0deg)); }
+.crayon svg { width: 100%; height: 100%; filter: url(#crayon); overflow: visible; }
+.crayon[aria-pressed="true"] { transform: translateY(-6px) rotate(0deg); }
+.crayon:focus-visible { outline: 3px dashed var(--c); outline-offset: 4px; border-radius: 8px; }
+@media (prefers-reduced-motion: no-preference) { .crayon { transition: transform .25s cubic-bezier(.3,1.6,.5,1); } .crayon:hover { transform: translateY(0) rotate(-4deg); } }
+@media (max-width: 560px) { .crayon { width: 26px; height: 72px; } .crayons { gap: 4px; } }
+.picked { font-family: var(--font-kid); font-size: 17px; color: var(--pencil); }
+.picked b { color: var(--pick, var(--rot)); font-weight: 400; }
+
+/* ---------- Seite ---------- */
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 30px; align-items: start; }
+@media (max-width: 960px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+.week { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 30px 24px; }
+
+/* Wackel-Rahmen wie mit Wachsmalstift gezogen */
+.scribble { position: relative; }
+.scribble::before {
+  content: ""; position: absolute; inset: 0; border: 4px solid var(--c); border-radius: var(--wobble);
+  filter: url(#crayon); pointer-events: none;
+}
+.scribble::after {
+  content: ""; position: absolute; inset: 5px -3px -4px 4px; border: 2px solid var(--c); border-radius: var(--wobble);
+  opacity: .45; filter: url(#crayon); pointer-events: none; transform: rotate(.6deg);
+}
+
+.day { --c: var(--rot); padding: 22px 18px 16px; transform: rotate(var(--tilt, 0deg)); min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.day h2 { font-family: var(--font-kid); font-weight: 400; font-size: 30px; line-height: 1; margin: 0; color: var(--c); filter: url(#crayon); display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.today-badge { font-family: var(--font-kid); font-size: 15px; color: var(--paper); background: var(--c); padding: 2px 10px 4px; border-radius: var(--wobble); transform: rotate(-6deg); display: inline-block; }
+.meal { display: grid; grid-template-columns: 54px minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.meal-name { grid-column: 1 / -1; font-family: var(--font-kid); font-size: 14px; color: var(--pencil); margin-bottom: -8px; padding-left: 62px; }
+.sticker {
+  width: 54px; height: 54px; border: 0; background: none; cursor: pointer; font-size: 32px; line-height: 1; position: relative; padding: 0;
+  display: grid; place-items: center;
+}
+.sticker::before { content: ""; position: absolute; inset: 2px; border: 3px dashed var(--c); border-radius: 50% 45% 52% 48%; filter: url(#crayon); opacity: .6; }
+.sticker.has::before { border-style: solid; opacity: 1; background: color-mix(in srgb, var(--c) 12%, transparent); }
+.sticker span { position: relative; transform: rotate(var(--st, -8deg)); }
+.sticker .plus { font-family: var(--font-kid); font-size: 26px; color: var(--c); opacity: .7; }
+.sticker:focus-visible, .dice:focus-visible, .eraser:focus-visible { outline: 3px dashed var(--c); outline-offset: 2px; border-radius: 12px; }
+.dish {
+  width: 100%; min-width: 0; font-family: var(--font-hand); font-size: 22px; color: var(--ink);
+  border: 0; border-bottom: 2px dotted color-mix(in srgb, var(--c) 55%, transparent); background: transparent; padding: 4px 2px;
+}
+.dish::placeholder { color: #b8b2a6; }
+.dish:focus { outline: none; border-bottom: 3px solid var(--c); }
+.dice { width: 40px; height: 40px; border: 0; background: none; cursor: pointer; padding: 0; color: var(--c); }
+.dice svg { width: 100%; height: 100%; filter: url(#crayon); }
+@media (prefers-reduced-motion: no-preference) { .dice.roll svg { animation: roll .5s ease-out; } @keyframes roll { to { transform: rotate(360deg) scale(1.1); } } }
+
+.pad-head { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+.pad-label { font-family: var(--font-kid); font-size: 15px; color: var(--c); transform: rotate(-2deg); }
+.eraser { font-family: var(--font-kid); font-size: 14px; border: 0; background: #ffd1dc; color: var(--ink); padding: 3px 10px 5px; border-radius: 8px 14px 9px 12px; cursor: pointer; transform: rotate(3deg); }
+.eraser.sure { background: var(--rot); color: var(--paper); }
+.pad { position: relative; aspect-ratio: 2 / 1; width: 100%; max-width: 100%; }
+.pad canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: crosshair; border-radius: 14px 8px 16px 10px; background: rgba(255,255,255,.7); }
+.pad .hint { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--font-kid); font-size: 15px; color: #bdb6a8; pointer-events: none; text-align: center; padding: 8px; }
+.pad::before { content: ""; position: absolute; inset: 0; border: 2px dashed var(--c); border-radius: 14px 8px 16px 10px; opacity: .45; pointer-events: none; filter: url(#crayon); }
+
+/* ---------- Einkaufszettel ---------- */
+aside { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 14px); transform: rotate(1.4deg); }
+@media (max-width: 960px) { aside { position: static; max-width: 420px; margin: 10px auto 0; } }
+.note {
+  background: #fff; padding: 34px 18px 22px 46px; position: relative;
+  background-image: linear-gradient(var(--paper) 0 0), repeating-linear-gradient(transparent 0 31px, var(--lined) 31px 33px);
+  background-size: 2px 100%, 100% 100%; background-position: 34px 0, 0 22px; background-repeat: no-repeat, repeat;
+  box-shadow: 2px 4px 0 rgba(0,0,0,.06), 0 10px 26px rgba(80,60,20,.12);
+  border-radius: 3px 6px 4px 8px;
+}
+.note::before { content: ""; position: absolute; top: 0; bottom: 0; left: 34px; width: 2px; background: var(--margin-red); }
+.tape { position: absolute; top: -14px; left: 50%; width: 110px; height: 30px; background: var(--tape); transform: translateX(-50%) rotate(-4deg); clip-path: polygon(3% 8%, 97% 0, 100% 92%, 2% 100%); }
+.note h2 { font-family: var(--font-kid); font-weight: 400; font-size: 28px; margin: 0 0 6px; color: var(--blau); filter: url(#crayon); }
+.add { display: flex; gap: 6px; margin-bottom: 6px; }
+.add input { flex: 1; min-width: 0; font-family: var(--font-hand); font-size: 21px; border: 0; border-bottom: 2px solid var(--blau); background: transparent; padding: 2px; color: var(--ink); }
+.add input:focus { outline: none; border-bottom-width: 3px; }
+.add button { font-family: var(--font-kid); font-size: 16px; border: 0; background: var(--gruen); color: #fff; padding: 2px 12px 4px; border-radius: 12px 6px 14px 8px; cursor: pointer; transform: rotate(-3deg); }
+.add button:focus-visible, .clear:focus-visible { outline: 3px dashed var(--blau); outline-offset: 2px; }
+ul.shop { list-style: none; margin: 0; padding: 0; }
+ul.shop li { display: flex; align-items: center; gap: 10px; min-height: 33px; font-size: 22px; }
+.check { width: 26px; height: 26px; flex: none; border: 0; padding: 0; background: none; cursor: pointer; color: var(--blau); }
+.check svg { width: 100%; height: 100%; filter: url(#crayon); overflow: visible; }
+.check:focus-visible { outline: 2px dashed var(--blau); outline-offset: 2px; }
+ul.shop li span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+ul.shop li.done span { color: var(--pencil); text-decoration: line-through wavy var(--rot); }
+.del { border: 0; background: none; font-family: var(--font-kid); font-size: 18px; color: var(--pencil); cursor: pointer; padding: 0 4px; }
+.empty { color: var(--pencil); font-size: 19px; }
+.clear { margin-top: 10px; font-family: var(--font-kid); font-size: 15px; border: 0; background: #ffe7a3; padding: 4px 12px 6px; border-radius: 10px 6px 12px 7px; cursor: pointer; transform: rotate(-2deg); }
+.save-note { font-size: 16px; color: var(--pencil); margin: 14px 0 0; }
+
+/* ---------- Sticker-Kiste ---------- */
+dialog { border: 0; padding: 0; background: transparent; max-width: min(520px, calc(100vw - 32px)); width: 100%; }
+dialog::backdrop { background: rgba(255, 249, 230, .75); backdrop-filter: blur(2px); }
+.kiste { --c: var(--orange); background: var(--paper); padding: 24px 20px 18px; }
+.kiste h3 { font-family: var(--font-kid); font-weight: 400; font-size: 26px; margin: 0 0 4px; color: var(--c); }
+.kiste p { margin: 0 0 12px; color: var(--pencil); }
+.sticker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)); gap: 6px; max-height: 50vh; overflow-y: auto; padding: 4px; }
+.sticker-grid button { font-size: 32px; height: 54px; border: 0; background: none; cursor: pointer; border-radius: 40% 50% 45% 55%; }
+.sticker-grid button:hover, .sticker-grid button:focus-visible { background: #fff1c9; outline: none; transform: rotate(-8deg) scale(1.15); }
+.kiste-actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+.kiste-actions button { font-family: var(--font-kid); font-size: 16px; border: 0; padding: 4px 14px 6px; border-radius: 12px 6px 14px 8px; cursor: pointer; }
+.k-none { background: #ffd1dc; }
+.k-close { background: var(--gruen); color: #fff; }
+
+/* Konfetti-Kritzel */
+.burst { position: fixed; pointer-events: none; z-index: 50; font-family: var(--font-kid); font-size: 22px; }
+@media (prefers-reduced-motion: no-preference) { .burst { animation: fly .9s ease-out forwards; } @keyframes fly { to { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); opacity: 0; } } }
+@media (prefers-reduced-motion: reduce) { .burst { display: none; } }
+.footer-doodle { margin-top: 40px; text-align: center; font-family: var(--font-kid); color: var(--pencil); font-size: 16px; }
 </style>
+
+<svg class="svg-defs" aria-hidden="true">
+  <defs>
+    <filter id="crayon" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="3" result="wob"/>
+      <feDisplacementMap in="SourceGraphic" in2="wob" scale="4" xChannelSelector="R" yChannelSelector="G" result="d"/>
+      <feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="1" seed="8" result="grain"/>
+      <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -2.4 0 0 0 1.95" result="mask"/>
+      <feComposite in="d" in2="mask" operator="in"/>
+    </filter>
+  </defs>
+</svg>
 
 <div class="wrap">
   <header>
     <div>
-      <h1>Was essen wir <span>diese Woche?</span></h1>
-      <p class="sub">Tippe einfach in ein Feld. Alles wird automatisch gespeichert.</p>
+      <h1 id="title" aria-label="Unser Mampf-Plan"></h1>
+      <p class="tagline">Was futtern wir diese Woche? Malt, klebt und würfelt los!</p>
     </div>
-    <div class="status"><span class="dot" id="dot"></span><span id="statusText">Lädt…</span></div>
+    <svg class="sun" viewBox="0 0 120 120" aria-hidden="true">
+      <g class="rays" stroke="#f77f00" stroke-width="6" stroke-linecap="round">
+        <path d="M60 6 L61 22"/><path d="M60 98 L59 114"/><path d="M6 61 L22 60"/><path d="M98 59 L114 60"/>
+        <path d="M22 21 L33 33"/><path d="M87 87 L99 98"/><path d="M98 22 L87 33"/><path d="M33 87 L21 99"/>
+      </g>
+      <path d="M60 30 C78 29 91 43 90 61 C89 79 76 91 59 90 C41 89 29 76 30 59 C31 42 43 31 60 30 Z" fill="#f9c22e" stroke="#f77f00" stroke-width="5"/>
+      <circle cx="49" cy="55" r="4" fill="#2b2b2b"/><circle cx="71" cy="55" r="4" fill="#2b2b2b"/>
+      <path d="M46 68 C53 78 67 78 74 67" fill="none" stroke="#2b2b2b" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="42" cy="66" r="5" fill="#ff5fa2" opacity=".55"/><circle cx="78" cy="66" r="5" fill="#ff5fa2" opacity=".55"/>
+    </svg>
   </header>
+
+  <div class="box">
+    <span class="box-label">Nimm dir einen Stift:</span>
+    <div class="crayons" id="crayons" role="group" aria-label="Wachsmalstifte"></div>
+    <span class="picked" id="picked"></span>
+  </div>
 
   <div class="layout">
     <main class="week" id="week"></main>
 
     <aside>
-      <h2>Einkaufsliste</h2>
-      <p>Was fehlt im Kühlschrank? Abhaken beim Einkaufen.</p>
-      <form class="add" id="addForm">
-        <input id="addInput" placeholder="z. B. 1 kg Kartoffeln" autocomplete="off" aria-label="Neuer Eintrag">
-        <button class="btn" type="submit">Dazu</button>
-      </form>
-      <ul class="shop" id="shop"></ul>
-      <div class="tools">
-        <button class="btn ghost" id="clearDone" type="button">Erledigte entfernen</button>
+      <div class="note">
+        <div class="tape"></div>
+        <h2>Einkaufszettel</h2>
+        <form class="add" id="addForm">
+          <input id="addInput" placeholder="Was fehlt noch?" autocomplete="off" aria-label="Neuer Eintrag für den Einkaufszettel">
+          <button type="submit">Dazu!</button>
+        </form>
+        <ul class="shop" id="shop"></ul>
+        <button class="clear" id="clearDone" type="button">Abgehakte wegradieren</button>
+        <p class="save-note" id="modeNote">Wird gespeichert…</p>
       </div>
-      <p class="note" id="modeNote"></p>
     </aside>
   </div>
+
+  <p class="footer-doodle">Gemalt von der ganzen Familie ♥</p>
 </div>
 
+<dialog id="kiste" aria-labelledby="kisteTitle">
+  <div class="kiste scribble">
+    <h3 id="kisteTitle">Sticker-Kiste</h3>
+    <p id="kisteFor">Such dir einen Sticker aus!</p>
+    <div class="sticker-grid" id="stickerGrid"></div>
+    <div class="kiste-actions">
+      <button class="k-none" id="kNone" type="button">Sticker abziehen</button>
+      <button class="k-close" id="kClose" type="button">Fertig</button>
+    </div>
+  </div>
+</dialog>
+
 <script>
+const CRAYONS = [
+  ["rot", "Rot", "#e5383b"], ["orange", "Orange", "#f77f00"], ["gelb", "Gelb", "#f9c22e"], ["gruen", "Grün", "#2a9d3f"],
+  ["hellblau", "Himmelblau", "#2fa4e7"], ["blau", "Blau", "#3a5bd9"], ["lila", "Lila", "#8e44ad"], ["rosa", "Rosa", "#ff5fa2"],
+  ["braun", "Braun", "#8b5a2b"], ["schwarz", "Schwarz", "#2b2b2b"]
+];
 const DAYS = [
-  ["mo", "Montag"], ["di", "Dienstag"], ["mi", "Mittwoch"], ["do", "Donnerstag"],
-  ["fr", "Freitag"], ["sa", "Samstag"], ["so", "Sonntag"]
+  ["mo", "Montag", "var(--rot)", -1.2], ["di", "Dienstag", "var(--orange)", .9], ["mi", "Mittwoch", "var(--gruen)", -.6],
+  ["do", "Donnerstag", "var(--hellblau)", 1.1], ["fr", "Freitag", "var(--lila)", -1], ["sa", "Samstag", "var(--rosa)", .7],
+  ["so", "Sonntag", "var(--blau)", -.8]
 ];
 const MEALS = [["frueh", "Frühstück"], ["mittag", "Mittagessen"], ["abend", "Abendessen"]];
 const IDEAS = {
-  frueh: ["Müsli mit Obst", "Rührei mit Brot", "Pfannkuchen", "Joghurt mit Beeren", "Haferbrei mit Banane", "Brötchen mit Käse", "Obstsalat"],
-  mittag: ["Spaghetti Bolognese", "Gemüsesuppe", "Kartoffeln mit Quark", "Fischstäbchen mit Kartoffelbrei", "Linsen-Eintopf", "Hähnchen mit Reis", "Gemüse-Lasagne", "Pizza selbst belegt", "Nudelauflauf", "Milchreis mit Apfelmus"],
-  abend: ["Brotzeit mit Gemüsesticks", "Tomatensuppe mit Brot", "Wraps zum Selberfüllen", "Toast Hawaii", "Ofengemüse mit Feta", "Kartoffelpuffer", "Salat mit Ei", "Quesadillas"]
+  frueh: [["Müsli mit Obst", "🥣"], ["Rührei mit Brot", "🍳"], ["Pfannkuchen", "🥞"], ["Joghurt mit Beeren", "🍓"], ["Haferbrei mit Banane", "🍌"], ["Brötchen mit Käse", "🥐"], ["Obstsalat", "🍎"], ["Waffeln", "🧇"]],
+  mittag: [["Spaghetti Bolognese", "🍝"], ["Gemüsesuppe", "🥕"], ["Kartoffeln mit Quark", "🥔"], ["Fischstäbchen mit Kartoffelbrei", "🐟"], ["Linsen-Eintopf", "🍲"], ["Hähnchen mit Reis", "🍗"], ["Pizza selbst belegt", "🍕"], ["Nudelauflauf", "🧀"], ["Milchreis mit Apfelmus", "🍚"], ["Gemüse-Lasagne", "🥦"]],
+  abend: [["Brotzeit mit Gemüsesticks", "🥒"], ["Tomatensuppe mit Brot", "🍅"], ["Wraps zum Selberfüllen", "🌯"], ["Toast Hawaii", "🍍"], ["Ofengemüse mit Feta", "🫑"], ["Kartoffelpuffer", "🥔"], ["Quesadillas", "🫓"], ["Burger selbst gebaut", "🍔"]]
 };
+const STICKERS = "🍝 🍕 🍔 🌭 🌮 🌯 🥪 🥗 🍲 🍜 🍛 🍚 🍣 🥟 🍗 🍖 🐟 🍳 🥞 🧇 🥐 🥨 🍞 🧀 🥚 🥔 🥕 🌽 🥦 🥒 🍅 🫑 🍄 🍎 🍌 🍓 🍇 🍉 🍍 🥝 🍒 🫐 🍑 🥥 🥣 🍦 🍪 🧁 🎂 🍫 🍩 🥛 🧃 🍯 ⭐ ❤️ 🌈 🎉".split(" ");
+const W = 1000, H = 500;
 
-const state = { meals: {}, shop: [] };
+const state = { meals: {}, shop: [], drawings: {} };
 let db = null;
-const weekEl = document.getElementById("week");
-const shopEl = document.getElementById("shop");
+let pen = { color: CRAYONS[0][2], name: CRAYONS[0][1] };
+const pads = {};
 
-function setStatus(live, text) {
-  document.getElementById("dot").classList.toggle("live", live);
-  document.getElementById("statusText").textContent = text;
+// ---------- Titel mit bunten Buchstaben ----------
+(function title() {
+  const t = document.getElementById("title");
+  const cols = ["#e5383b", "#f77f00", "#2a9d3f", "#2fa4e7", "#8e44ad", "#ff5fa2", "#3a5bd9"];
+  let i = 0;
+  "Unser Mampf-Plan".split(" ").forEach((word, wi) => {
+    if (wi) t.append(" ");
+    const w = document.createElement("span"); w.className = "word"; t.append(w);
+    [...word].forEach(ch => { i++;
+    const s = document.createElement("span");
+    s.className = "l"; s.textContent = ch; s.setAttribute("aria-hidden", "true");
+    s.style.color = cols[i % cols.length];
+    s.style.setProperty("--r", ((i * 37) % 13 - 6) + "deg");
+    s.style.setProperty("--y", ((i * 53) % 7 - 3) + "px");
+    s.style.setProperty("--i", i);
+    w.append(s);
+  }); });
+})();
+
+// ---------- Stifte ----------
+function crayonSVG(color) {
+  return `<svg viewBox="0 0 34 92" aria-hidden="true">
+    <path d="M10 22 L17 3 L24 22 Z" fill="${color}"/>
+    <rect x="7" y="21" width="20" height="68" rx="3" fill="${color}"/>
+    <rect x="7" y="34" width="20" height="38" fill="#fff" opacity=".35"/>
+    <path d="M7 34 L27 34 M7 72 L27 72" stroke="#2b2b2b" stroke-width="1.6" opacity=".55"/>
+    <path d="M11 44 q6 -4 12 0 M11 52 q6 4 12 0 M11 60 q6 -4 12 0" stroke="#2b2b2b" stroke-width="1.4" fill="none" opacity=".45"/>
+  </svg>`;
+}
+function renderCrayons() {
+  const box = document.getElementById("crayons");
+  CRAYONS.forEach(([id, name, color], i) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "crayon"; b.id = "crayon-" + id;
+    b.style.setProperty("--c", color);
+    b.style.setProperty("--tilt", ((i * 29) % 9 - 4) + "deg");
+    b.setAttribute("aria-label", name);
+    b.setAttribute("aria-pressed", i === 0 ? "true" : "false");
+    b.innerHTML = crayonSVG(color);
+    b.addEventListener("click", () => {
+      pen = { color, name };
+      box.querySelectorAll(".crayon").forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
+      showPicked();
+    });
+    box.append(b);
+  });
+  showPicked();
+}
+function showPicked() {
+  const p = document.getElementById("picked");
+  p.style.setProperty("--pick", pen.color);
+  p.innerHTML = "";
+  p.append("Du malst mit ");
+  const b = document.createElement("b"); b.textContent = pen.name; p.append(b, "!");
 }
 
-// ---------- Speicher: geteilt (db) oder nur dieses Gerät (localStorage) ----------
-function localLoad() {
-  try { const raw = localStorage.getItem("essensplan"); if (raw) Object.assign(state, JSON.parse(raw)); } catch (e) {}
-}
-function localSave() {
-  try { localStorage.setItem("essensplan", JSON.stringify(state)); } catch (e) {}
-}
-
-const pending = {};
-function saveMeal(key, value) {
-  state.meals[key] = value;
-  if (!db) { localSave(); return; }
-  clearTimeout(pending[key]);
-  pending[key] = setTimeout(async () => {
-    try { await db.doc("meals/" + key).set({ dish: value }); }
-    catch (e) { setStatus(false, "Speichern hat nicht geklappt"); }
-  }, 600);
-}
-
-async function addItem(text) {
-  if (!db) {
-    state.shop.push({ id: String(Date.now()), text, done: false, at: Date.now() });
-    localSave(); renderShop(); return;
+// ---------- Wachsmal-Pinsel ----------
+const patterns = {};
+function crayonPattern(ctx, color) {
+  if (patterns[color]) return patterns[color];
+  const c = document.createElement("canvas"); c.width = c.height = 48;
+  const x = c.getContext("2d");
+  x.fillStyle = color; x.fillRect(0, 0, 48, 48);
+  const img = x.getImageData(0, 0, 48, 48);
+  for (let i = 3; i < img.data.length; i += 4) {
+    const r = Math.random();
+    img.data[i] = r < 0.22 ? 0 : r < 0.4 ? 150 : 235;
   }
-  try { await db.collection("shop").add({ text, done: false, at: Date.now() }); }
-  catch (e) { setStatus(false, "Speichern hat nicht geklappt"); }
+  x.putImageData(img, 0, 0);
+  return (patterns[color] = ctx.createPattern(c, "repeat"));
+}
+function drawStroke(ctx, s, scale) {
+  const p = s.p;
+  if (!p || p.length < 2) return;
+  ctx.save();
+  ctx.lineCap = "round"; ctx.lineJoin = "round";
+  ctx.strokeStyle = crayonPattern(ctx, s.c);
+  ctx.lineWidth = (s.w || 9) * scale;
+  ctx.beginPath();
+  ctx.moveTo(p[0] * scale, p[1] * scale);
+  if (p.length === 2) ctx.lineTo(p[0] * scale + .1, p[1] * scale + .1);
+  for (let i = 2; i < p.length; i += 2) ctx.lineTo(p[i] * scale, p[i + 1] * scale);
+  ctx.stroke();
+  ctx.restore();
+}
+const validColor = c => typeof c === "string" && /^#[0-9a-f]{6}$/i.test(c);
+
+function setupPad(day, canvas, hint) {
+  const pad = { canvas, hint, ctx: canvas.getContext("2d"), scale: 1, live: null };
+  pads[day] = pad;
+  const resize = () => {
+    const r = canvas.getBoundingClientRect();
+    if (!r.width) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(r.width * dpr); canvas.height = Math.round(r.height * dpr);
+    pad.scale = canvas.width / W;
+    redraw(day);
+  };
+  new ResizeObserver(resize).observe(canvas);
+  const pt = e => {
+    const r = canvas.getBoundingClientRect();
+    return [Math.round((e.clientX - r.left) / r.width * W), Math.round((e.clientY - r.top) / r.height * H)];
+  };
+  canvas.addEventListener("pointerdown", e => {
+    e.preventDefault();
+    canvas.setPointerCapture(e.pointerId);
+    pad.live = { c: pen.color, w: 10, p: pt(e) };
+    hint.hidden = true;
+    redraw(day);
+  });
+  canvas.addEventListener("pointermove", e => {
+    if (!pad.live) return;
+    const [x, y] = pt(e), p = pad.live.p;
+    const lx = p[p.length - 2], ly = p[p.length - 1];
+    if (Math.abs(x - lx) + Math.abs(y - ly) < 6) return;
+    p.push(x, y);
+    pad.ctx.save();
+    pad.ctx.lineCap = "round"; pad.ctx.strokeStyle = crayonPattern(pad.ctx, pad.live.c);
+    pad.ctx.lineWidth = pad.live.w * pad.scale;
+    pad.ctx.beginPath(); pad.ctx.moveTo(lx * pad.scale, ly * pad.scale); pad.ctx.lineTo(x * pad.scale, y * pad.scale); pad.ctx.stroke();
+    pad.ctx.restore();
+  });
+  const end = () => {
+    if (!pad.live) return;
+    const s = pad.live; pad.live = null;
+    const strokes = (state.drawings[day] || []).concat([s]).slice(-80);
+    state.drawings[day] = strokes;
+    redraw(day);
+    saveDrawing(day);
+  };
+  canvas.addEventListener("pointerup", end);
+  canvas.addEventListener("pointercancel", end);
+}
+function redraw(day) {
+  const pad = pads[day]; if (!pad) return;
+  const { ctx, canvas, scale } = pad;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const strokes = state.drawings[day] || [];
+  strokes.forEach(s => { if (validColor(s.c) && Array.isArray(s.p)) drawStroke(ctx, s, scale); });
+  if (pad.live) drawStroke(ctx, pad.live, scale);
+  pad.hint.hidden = strokes.length > 0 || !!pad.live;
+}
+
+// ---------- Speichern: gemeinsam (db) oder nur hier (Browser) ----------
+function localLoad() { try { const raw = localStorage.getItem("mampfplan"); if (raw) Object.assign(state, JSON.parse(raw)); } catch (e) {} }
+function localSave() { try { localStorage.setItem("mampfplan", JSON.stringify(state)); } catch (e) {} }
+
+const timers = {}, chains = {};
+function queueWrite(path, makeData, delay) {
+  clearTimeout(timers[path]);
+  timers[path] = setTimeout(() => {
+    chains[path] = (chains[path] || Promise.resolve()).then(() => db.doc(path).set(makeData())).catch(() => {
+      document.getElementById("modeNote").textContent = "Hoppla, Speichern hat nicht geklappt. Bitte nochmal versuchen.";
+    });
+  }, delay);
+}
+function saveMeal(key) {
+  if (!db) { localSave(); return; }
+  queueWrite("meals/" + key, () => ({ dish: state.meals[key]?.dish || "", sticker: state.meals[key]?.sticker || "" }), 600);
+}
+function saveDrawing(day) {
+  if (!db) { localSave(); return; }
+  queueWrite("drawings/" + day, () => ({ strokes: state.drawings[day] || [] }), 250);
+}
+
+// ---------- Woche ----------
+const weekEl = document.getElementById("week");
+function renderWeek() {
+  const todayIdx = (new Date().getDay() + 6) % 7;
+  weekEl.innerHTML = "";
+  Object.keys(pads).forEach(k => delete pads[k]);
+  DAYS.forEach(([d, name, color, tilt], i) => {
+    const card = document.createElement("section");
+    card.className = "day scribble";
+    card.style.setProperty("--c", color);
+    card.style.setProperty("--tilt", tilt + "deg");
+    const h = document.createElement("h2");
+    h.textContent = name;
+    if (i === todayIdx) { const b = document.createElement("span"); b.className = "today-badge"; b.textContent = "heute!"; h.append(b); }
+    card.append(h);
+
+    MEALS.forEach(([m, label]) => {
+      const key = d + "-" + m;
+      const row = document.createElement("div"); row.className = "meal";
+      const nm = document.createElement("div"); nm.className = "meal-name"; nm.textContent = label;
+      const st = document.createElement("button");
+      st.type = "button"; st.className = "sticker"; st.id = "st-" + key;
+      st.style.setProperty("--st", ((key.length * 17) % 20 - 10) + "deg");
+      st.addEventListener("click", () => openKiste(key, name + ", " + label));
+      const inp = document.createElement("input");
+      inp.className = "dish"; inp.id = "in-" + key; inp.placeholder = "Was gibt's?";
+      inp.setAttribute("aria-label", name + " " + label);
+      inp.addEventListener("input", () => { state.meals[key] = { ...(state.meals[key] || {}), dish: inp.value }; saveMeal(key); });
+      const dice = document.createElement("button");
+      dice.type = "button"; dice.className = "dice"; dice.title = "Würfeln: Idee holen";
+      dice.setAttribute("aria-label", "Idee würfeln für " + name + " " + label);
+      dice.innerHTML = `<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M7 9 C14 6 27 6 33 8 C35 15 35 26 33 32 C25 35 14 34 8 33 C5 25 5 15 7 9 Z" fill="#fff" stroke="currentColor" stroke-width="3"/><circle cx="14" cy="14" r="3" fill="currentColor"/><circle cx="20" cy="20" r="3" fill="currentColor"/><circle cx="26" cy="26" r="3" fill="currentColor"/></svg>`;
+      dice.addEventListener("click", e => {
+        const cur = state.meals[key]?.dish;
+        const list = IDEAS[m].filter(x => x[0] !== cur);
+        const [dish, sticker] = list[Math.floor(Math.random() * list.length)];
+        state.meals[key] = { dish, sticker };
+        updateMeal(key); saveMeal(key);
+        dice.classList.remove("roll"); void dice.offsetWidth; dice.classList.add("roll");
+        burst(e.clientX, e.clientY);
+      });
+      row.append(nm, st, inp, dice);
+      card.append(row);
+      updateMeal(key);
+    });
+
+    const head = document.createElement("div"); head.className = "pad-head";
+    const pl = document.createElement("span"); pl.className = "pad-label"; pl.textContent = "Mal dein Lieblingsessen!";
+    const er = document.createElement("button"); er.type = "button"; er.className = "eraser"; er.textContent = "Radiergummi";
+    let sureTimer;
+    er.addEventListener("click", () => {
+      if (!er.classList.contains("sure")) {
+        er.classList.add("sure"); er.textContent = "Wirklich alles weg?";
+        sureTimer = setTimeout(() => { er.classList.remove("sure"); er.textContent = "Radiergummi"; }, 3000);
+        return;
+      }
+      clearTimeout(sureTimer);
+      er.classList.remove("sure"); er.textContent = "Radiergummi";
+      state.drawings[d] = []; redraw(d); saveDrawing(d);
+    });
+    head.append(pl, er);
+    const pad = document.createElement("div"); pad.className = "pad";
+    const cv = document.createElement("canvas"); cv.id = "pad-" + d;
+    cv.setAttribute("aria-label", "Malfläche für " + name);
+    const hint = document.createElement("div"); hint.className = "hint"; hint.textContent = "Stift aussuchen und hier malen";
+    pad.append(cv, hint);
+    card.append(head, pad);
+    weekEl.append(card);
+    setupPad(d, cv, hint);
+  });
+}
+function updateMeal(key) {
+  const v = state.meals[key] || {};
+  const inp = document.getElementById("in-" + key);
+  if (inp && document.activeElement !== inp && inp.value !== (v.dish || "")) inp.value = v.dish || "";
+  const st = document.getElementById("st-" + key);
+  if (!st) return;
+  st.innerHTML = "";
+  const s = document.createElement("span");
+  if (v.sticker) { s.textContent = v.sticker; st.classList.add("has"); st.setAttribute("aria-label", "Sticker ändern"); }
+  else { s.textContent = "+"; s.className = "plus"; st.classList.remove("has"); st.setAttribute("aria-label", "Sticker aufkleben"); }
+  st.append(s);
+}
+
+// ---------- Sticker-Kiste ----------
+const kiste = document.getElementById("kiste");
+let kisteKey = null;
+(function fillKiste() {
+  const g = document.getElementById("stickerGrid");
+  STICKERS.forEach(s => {
+    const b = document.createElement("button");
+    b.type = "button"; b.textContent = s; b.setAttribute("aria-label", "Sticker " + s);
+    b.addEventListener("click", e => { setSticker(s); burst(e.clientX, e.clientY); kiste.close(); });
+    g.append(b);
+  });
+})();
+function openKiste(key, label) {
+  kisteKey = key;
+  document.getElementById("kisteFor").textContent = "Für " + label + ". Such dir einen aus!";
+  try { kiste.showModal(); } catch (e) { kiste.setAttribute("open", ""); }
+}
+function setSticker(s) {
+  if (!kisteKey) return;
+  state.meals[kisteKey] = { ...(state.meals[kisteKey] || {}), sticker: s };
+  updateMeal(kisteKey); saveMeal(kisteKey);
+}
+document.getElementById("kNone").addEventListener("click", () => { setSticker(""); kiste.close(); });
+document.getElementById("kClose").addEventListener("click", () => kiste.close());
+kiste.addEventListener("click", e => { if (e.target === kiste) kiste.close(); });
+
+// ---------- Konfetti ----------
+function burst(x, y) {
+  const bits = ["★", "♥", "✿", "●", "✦", "~"];
+  const cols = CRAYONS.map(c => c[2]);
+  for (let i = 0; i < 12; i++) {
+    const s = document.createElement("span");
+    s.className = "burst"; s.textContent = bits[i % bits.length];
+    s.style.left = x + "px"; s.style.top = y + "px"; s.style.color = cols[(i * 3) % cols.length];
+    const a = Math.random() * Math.PI * 2, r = 50 + Math.random() * 70;
+    s.style.setProperty("--dx", Math.cos(a) * r + "px"); s.style.setProperty("--dy", Math.sin(a) * r + "px");
+    s.style.setProperty("--rot", (Math.random() * 360 - 180) + "deg");
+    document.body.append(s);
+    setTimeout(() => s.remove(), 1000);
+  }
+}
+
+// ---------- Einkaufszettel ----------
+const shopEl = document.getElementById("shop");
+function renderShop() {
+  shopEl.innerHTML = "";
+  if (!state.shop.length) {
+    const li = document.createElement("li"); li.className = "empty"; li.textContent = "Noch leer. Schreib oben rein!";
+    shopEl.append(li); return;
+  }
+  [...state.shop].sort((a, b) => (a.done - b.done) || ((a.at || 0) - (b.at || 0))).forEach(item => {
+    const li = document.createElement("li"); if (item.done) li.className = "done";
+    const ck = document.createElement("button");
+    ck.type = "button"; ck.className = "check";
+    ck.setAttribute("role", "checkbox"); ck.setAttribute("aria-checked", item.done ? "true" : "false");
+    ck.setAttribute("aria-label", String(item.text || ""));
+    ck.innerHTML = `<svg viewBox="0 0 26 26" aria-hidden="true"><path d="M3 4 C9 2 18 3 23 3 C24 10 24 17 23 23 C16 24 9 24 3 23 C2 16 2 9 3 4 Z" fill="none" stroke="currentColor" stroke-width="2.4"/>${item.done ? '<path d="M6 13 L11 19 L25 -2" fill="none" stroke="#2a9d3f" stroke-width="4" stroke-linecap="round"/>' : ""}</svg>`;
+    ck.addEventListener("click", () => toggleItem(item));
+    const sp = document.createElement("span"); sp.textContent = String(item.text || "");
+    const del = document.createElement("button");
+    del.type = "button"; del.className = "del"; del.textContent = "✗";
+    del.setAttribute("aria-label", "Wegradieren: " + String(item.text || ""));
+    del.addEventListener("click", () => removeItem(item));
+    li.append(ck, sp, del); shopEl.append(li);
+  });
+}
+async function addItem(text) {
+  if (!db) { state.shop.push({ id: String(Date.now()), text, done: false, at: Date.now() }); localSave(); renderShop(); return; }
+  try { await db.collection("shop").add({ text, done: false, at: Date.now() }); } catch (e) {}
 }
 async function toggleItem(item) {
   if (!db) { item.done = !item.done; localSave(); renderShop(); return; }
@@ -163,116 +587,45 @@ async function removeItem(item) {
   if (!db) { state.shop = state.shop.filter(i => i !== item); localSave(); renderShop(); return; }
   try { await db.doc("shop/" + item.id).delete(); } catch (e) {}
 }
-
-// ---------- Anzeige ----------
-function renderWeek() {
-  const todayIdx = (new Date().getDay() + 6) % 7;
-  weekEl.innerHTML = "";
-  DAYS.forEach(([d, name], i) => {
-    const card = document.createElement("section");
-    card.className = "day" + (i === todayIdx ? " today" : "");
-    const h = document.createElement("h2");
-    h.textContent = name;
-    if (i === todayIdx) { const s = document.createElement("small"); s.textContent = "Heute"; h.append(s); }
-    card.append(h);
-    MEALS.forEach(([m, label]) => {
-      const key = d + "-" + m;
-      const wrap = document.createElement("div");
-      wrap.className = "meal";
-      const lab = document.createElement("label");
-      lab.htmlFor = "in-" + key;
-      lab.textContent = label;
-      const idea = document.createElement("button");
-      idea.type = "button"; idea.className = "idea"; idea.textContent = "Idee?";
-      idea.title = "Zufälligen Vorschlag eintragen";
-      const inp = document.createElement("input");
-      inp.id = "in-" + key;
-      inp.placeholder = "noch offen";
-      inp.value = state.meals[key] || "";
-      inp.addEventListener("input", () => saveMeal(key, inp.value));
-      idea.addEventListener("click", () => {
-        const list = IDEAS[m].filter(x => x !== inp.value);
-        inp.value = list[Math.floor(Math.random() * list.length)];
-        saveMeal(key, inp.value);
-      });
-      lab.append(idea);
-      wrap.append(lab, inp);
-      card.append(wrap);
-    });
-    weekEl.append(card);
-  });
-}
-
-function updateMealInputs() {
-  for (const [key, value] of Object.entries(state.meals)) {
-    const inp = document.getElementById("in-" + key);
-    if (inp && document.activeElement !== inp && inp.value !== value) inp.value = value;
-  }
-}
-
-function renderShop() {
-  shopEl.innerHTML = "";
-  if (!state.shop.length) {
-    const li = document.createElement("li");
-    li.className = "empty";
-    li.textContent = "Noch leer. Schreib oben rein, was ihr braucht.";
-    shopEl.append(li); return;
-  }
-  const items = [...state.shop].sort((a, b) => (a.done - b.done) || (a.at - b.at));
-  for (const item of items) {
-    const li = document.createElement("li");
-    if (item.done) li.className = "done";
-    const cb = document.createElement("input");
-    cb.type = "checkbox"; cb.checked = !!item.done; cb.id = "cb-" + item.id;
-    cb.setAttribute("aria-label", item.text);
-    cb.addEventListener("change", () => toggleItem(item));
-    const span = document.createElement("span");
-    span.textContent = item.text;
-    const del = document.createElement("button");
-    del.type = "button"; del.className = "del"; del.textContent = "×";
-    del.setAttribute("aria-label", "Entfernen: " + item.text);
-    del.addEventListener("click", () => removeItem(item));
-    li.append(cb, span, del);
-    shopEl.append(li);
-  }
-}
-
 document.getElementById("addForm").addEventListener("submit", e => {
   e.preventDefault();
   const inp = document.getElementById("addInput");
-  const text = inp.value.trim();
-  if (!text) return;
-  inp.value = "";
-  addItem(text);
+  const text = inp.value.trim(); if (!text) return;
+  inp.value = ""; addItem(text);
 });
 document.getElementById("clearDone").addEventListener("click", async () => {
-  const done = state.shop.filter(i => i.done);
   if (!db) { state.shop = state.shop.filter(i => !i.done); localSave(); renderShop(); return; }
-  for (const item of done) { try { await db.doc("shop/" + item.id).delete(); } catch (e) {} }
+  for (const item of state.shop.filter(i => i.done)) { try { await db.doc("shop/" + item.id).delete(); } catch (e) {} }
 });
 
 // ---------- Start ----------
 localLoad();
+renderCrayons();
 renderWeek();
 renderShop();
-setStatus(false, "Nur auf diesem Gerät gespeichert");
-document.getElementById("modeNote").textContent = "Gespeichert in diesem Browser.";
+document.getElementById("modeNote").textContent = "Gespeichert hier in diesem Browser.";
 
 (async () => {
-  const use = window.claude && window.claude.use;
-  if (!use) return;
+  if (!window.claude || !window.claude.use) return;
   const shared = await window.claude.use("db");
   if (!shared) return;
   db = shared;
-  state.meals = {}; state.shop = [];
+  state.meals = {}; state.shop = []; state.drawings = {};
   renderWeek(); renderShop();
-  setStatus(true, "Für die ganze Familie geteilt");
-  document.getElementById("modeNote").textContent = "Alle mit dem Link sehen denselben Plan.";
+  document.getElementById("modeNote").textContent = "Die ganze Familie sieht denselben Plan.";
   db.collection("meals").onSnapshot(snap => {
-    const meals = {};
-    snap.docs.forEach(d => { meals[d.id] = (d.data() || {}).dish || ""; });
-    state.meals = meals;
-    updateMealInputs();
+    snap.docs.forEach(doc => {
+      const v = doc.data() || {};
+      state.meals[doc.id] = { dish: String(v.dish || ""), sticker: String(v.sticker || "").slice(0, 8) };
+      updateMeal(doc.id);
+    });
+  });
+  db.collection("drawings").onSnapshot(snap => {
+    snap.docs.forEach(doc => {
+      const v = doc.data() || {};
+      state.drawings[doc.id] = Array.isArray(v.strokes) ? v.strokes : [];
+      if (!pads[doc.id] || !pads[doc.id].live) redraw(doc.id);
+    });
   });
   db.collection("shop").onSnapshot(snap => {
     state.shop = snap.docs.map(d => ({ id: d.id, ...(d.data() || {}) }));
