@@ -9,161 +9,202 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloria+Hallelujah&family=Patrick+Hand&display=swap">
 <style>
-/* Layout: Malblock-Seite. Oben Titel + Wachsmalstift-Schachtel, darunter 7 Tages-Zeichnungen, rechts ein angeklebter Einkaufszettel.
+/* Layout: eine Spalte wie ein Handy-Malblock. Oben Wochenstreifen (5 Gerichte), darunter Runde (Montag/Mittwoch):
+   erst Karten-Stapel zum Wischen, danach die gewählten Gerichte + Einkaufszettel mit Gurkerl-Knöpfen.
    Bewusst nur ein Look (weißes Malpapier), daher kein Dunkel-Modus. */
 :root {
   color-scheme: light;
   --paper: #fffdf6;
+  --card: #ffffff;
   --ink: #2b2b2b;
-  --pencil: #77736a;
-  --tape: rgba(250, 226, 140, .78);
+  --pencil: #6f6a60;
+  --line: #e7e1d3;
+  --tape: rgba(250, 226, 140, .8);
   --lined: #cfe3f5;
   --margin-red: #f4a3a3;
   --rot: #e5383b; --orange: #f77f00; --gelb: #f9c22e; --gruen: #2a9d3f; --hellblau: #2fa4e7;
-  --blau: #3a5bd9; --lila: #8e44ad; --rosa: #ff5fa2; --braun: #8b5a2b; --schwarz: #2b2b2b;
+  --blau: #3a5bd9; --lila: #8e44ad; --rosa: #ff5fa2;
+  --gurkerl: #2f8f3a;
   --font-kid: "Gloria Hallelujah", "Comic Sans MS", "Chalkboard SE", cursive;
   --font-hand: "Patrick Hand", "Comic Sans MS", "Chalkboard SE", cursive;
   --wobble: 255px 18px 225px 20px / 20px 225px 18px 255px;
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { background: var(--paper); }
 body {
-  color: var(--ink); font-family: var(--font-hand); font-size: 19px; line-height: 1.3;
-  background-image:
-    radial-gradient(circle at 20% 30%, rgba(0,0,0,.025) 0 1px, transparent 1.5px),
-    radial-gradient(circle at 70% 80%, rgba(0,0,0,.02) 0 1px, transparent 1.5px);
-  background-size: 7px 7px, 11px 11px;
-  overflow-x: hidden;
+  color: var(--ink); font-family: var(--font-hand); font-size: 19px; line-height: 1.35; overflow-x: hidden;
+  background-image: radial-gradient(circle at 20% 30%, rgba(0,0,0,.025) 0 1px, transparent 1.5px);
+  background-size: 7px 7px;
 }
-[hidden] { display: none !important; }
-h1 .word { white-space: nowrap; }
+button { font-family: inherit; color: inherit; }
 .svg-defs { position: absolute; width: 0; height: 0; }
-.wrap { max-width: 1280px; margin: 0 auto; padding-inline: 16px; padding-block: 18px 60px; position: relative; }
+.wrap { max-width: 760px; margin: 0 auto; padding-inline: 16px; padding-block: 16px 64px; }
 
 /* ---------- Kopf ---------- */
-header { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 24px; align-items: center; }
-h1 { font-family: var(--font-kid); font-weight: 400; font-size: clamp(38px, 7vw, 72px); line-height: 1.05; margin: 8px 0 0; text-wrap: balance; }
+header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+h1 { font-family: var(--font-kid); font-weight: 400; font-size: clamp(36px, 8vw, 58px); line-height: 1.05; margin: 4px 0 0; }
+h1 .word { white-space: nowrap; }
 h1 .l { display: inline-block; transform: rotate(var(--r, 0deg)) translateY(var(--y, 0px)); filter: url(#crayon); }
-@media (prefers-reduced-motion: no-preference) {
-  h1 .l { animation: hop .6s cubic-bezier(.3,1.6,.5,1) both; animation-delay: calc(var(--i) * 45ms); }
-  @keyframes hop { from { transform: translateY(-30px) rotate(-20deg); opacity: 0; } }
-}
-.tagline { font-family: var(--font-hand); font-size: 22px; color: var(--pencil); margin: 6px 0 0; transform: rotate(-1deg); }
-.sun { width: clamp(90px, 14vw, 150px); height: auto; filter: url(#crayon); }
+.week-label { margin: 4px 0 0; color: var(--pencil); font-size: 20px; }
+.sun { width: 84px; flex: none; filter: url(#crayon); }
 @media (prefers-reduced-motion: no-preference) { .sun .rays { transform-origin: 60px 60px; animation: spin 24s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } } }
-@media (max-width: 560px) { header { grid-template-columns: minmax(0, 1fr); } .sun { position: absolute; right: 8px; top: 4px; width: 80px; opacity: .9; } h1 { padding-right: 70px; } }
+.persons { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 19px; flex-wrap: wrap; }
+.persons button { width: 34px; height: 34px; border: 2px solid var(--ink); background: var(--card); border-radius: 50% 45% 52% 48%; font-family: var(--font-kid); font-size: 18px; line-height: 1; cursor: pointer; }
+.persons b { font-family: var(--font-kid); font-weight: 400; font-size: 24px; min-width: 1.2em; text-align: center; color: var(--blau); }
 
-/* ---------- Stifte-Schachtel ---------- */
-.box { margin: 18px 0 26px; display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 18px; }
-.box-label { font-family: var(--font-kid); font-size: 18px; transform: rotate(-3deg); }
-.crayons { display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-end; }
-.crayon { --c: var(--rot); width: 34px; height: 92px; padding: 0; border: 0; background: none; cursor: pointer; position: relative; transform: translateY(14px) rotate(var(--tilt, 0deg)); }
-.crayon svg { width: 100%; height: 100%; filter: url(#crayon); overflow: visible; }
-.crayon[aria-pressed="true"] { transform: translateY(-6px) rotate(0deg); }
-.crayon:focus-visible { outline: 3px dashed var(--c); outline-offset: 4px; border-radius: 8px; }
-@media (prefers-reduced-motion: no-preference) { .crayon { transition: transform .25s cubic-bezier(.3,1.6,.5,1); } .crayon:hover { transform: translateY(0) rotate(-4deg); } }
-@media (max-width: 560px) { .crayon { width: 26px; height: 72px; } .crayons { gap: 4px; } }
-.picked { font-family: var(--font-kid); font-size: 17px; color: var(--pencil); }
-.picked b { color: var(--pick, var(--rot)); font-weight: 400; }
+/* ---------- Wochenstreifen ---------- */
+.strip { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin: 22px 0 8px; }
+.slot { text-align: center; min-width: 0; padding: 8px 4px 6px; border-radius: 14px 9px 16px 10px; border: 2.5px dashed var(--line); background: transparent; cursor: default; }
+.slot.full { border-style: solid; border-color: var(--c); background: var(--card); cursor: pointer; }
+.slot .em { font-size: 30px; line-height: 1.2; display: block; }
+.slot .nm { font-size: 14px; line-height: 1.15; display: block; hyphens: auto; overflow-wrap: break-word; color: var(--pencil); }
+.slot.full .nm { color: var(--ink); }
+.strip-legend { display: grid; grid-template-columns: 3fr 2fr; gap: 8px; font-family: var(--font-kid); font-size: 13px; color: var(--pencil); text-align: center; margin-bottom: 18px; }
+.strip-legend span { border-top: 2px solid currentColor; padding-top: 2px; }
 
-/* ---------- Seite ---------- */
-.layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 30px; align-items: start; }
-@media (max-width: 960px) { .layout { grid-template-columns: minmax(0, 1fr); } }
-.week { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 30px 24px; }
+/* ---------- Runden-Reiter ---------- */
+.tabs { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.tab { flex: 1 1 0; min-width: 0; border: 0; background: none; cursor: pointer; padding: 10px 12px 12px; text-align: left; position: relative; --c: var(--pencil); }
+.tab::before { content: ""; position: absolute; inset: 0; border: 3px solid var(--c); border-radius: var(--wobble); filter: url(#crayon); opacity: .35; }
+.tab[aria-selected="true"]::before { opacity: 1; background: color-mix(in srgb, var(--c) 10%, transparent); }
+.tab .t1 { font-family: var(--font-kid); font-size: 20px; color: var(--c); display: block; position: relative; }
+.tab .t2 { font-size: 15px; line-height: 1.2; color: var(--pencil); display: block; position: relative; }
+.tab:focus-visible { outline: 3px dashed var(--c); outline-offset: 3px; border-radius: 16px; }
 
-/* Wackel-Rahmen wie mit Wachsmalstift gezogen */
-.scribble { position: relative; }
-.scribble::before {
-  content: ""; position: absolute; inset: 0; border: 4px solid var(--c); border-radius: var(--wobble);
-  filter: url(#crayon); pointer-events: none;
+/* ---------- Wisch-Bereich ---------- */
+.progress { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 4px 0 12px; font-size: 20px; flex-wrap: wrap; text-align: center; }
+.hearts { display: inline-flex; gap: 4px; }
+.heart { width: 30px; height: 28px; }
+.heart path { stroke: var(--rosa); stroke-width: 2.5; fill: transparent; }
+.heart.on path { fill: var(--rosa); }
+.stage { position: relative; height: 500px; max-width: 380px; margin: 0 auto; }
+.rcard {
+  position: absolute; inset: 0; background: var(--card); border-radius: 22px 16px 24px 18px; overflow: hidden;
+  box-shadow: 0 2px 0 rgba(0,0,0,.05), 0 12px 30px rgba(70, 50, 20, .14);
+  display: flex; flex-direction: column; touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab;
+  transform-origin: 50% 90%;
 }
-.scribble::after {
-  content: ""; position: absolute; inset: 5px -3px -4px 4px; border: 2px solid var(--c); border-radius: var(--wobble);
-  opacity: .45; filter: url(#crayon); pointer-events: none; transform: rotate(.6deg);
-}
+.rcard.back1 { transform: translateY(12px) scale(.96) rotate(-2deg); }
+.rcard.back2 { transform: translateY(22px) scale(.92) rotate(2deg); }
+.rcard.back1, .rcard.back2 { pointer-events: none; }
+.rcard::after { content: ""; position: absolute; inset: 6px; border: 3px solid var(--c); border-radius: var(--wobble); filter: url(#crayon); pointer-events: none; }
+.rcard .pic { height: 210px; flex: none; display: grid; place-items: center; position: relative; background: color-mix(in srgb, var(--c) 16%, var(--card)); }
+.rcard .pic .blob { position: absolute; width: 190px; height: 160px; background: color-mix(in srgb, var(--c) 30%, var(--card)); border-radius: 58% 42% 50% 50% / 45% 55% 45% 55%; filter: url(#crayon); }
+.rcard .pic .em { font-size: 110px; line-height: 1; position: relative; transform: rotate(-6deg); }
+.rcard .body { padding: 16px 22px 18px; display: flex; flex-direction: column; gap: 8px; flex: 1; min-height: 0; }
+.rcard h3 { font-family: var(--font-kid); font-weight: 400; font-size: 25px; line-height: 1.15; margin: 0; color: var(--c); text-wrap: balance; }
+.rcard p { margin: 0; font-size: 19px; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: auto; }
+.chip { font-size: 16px; padding: 1px 10px 2px; border-radius: 12px 8px 14px 9px; background: #f3efe4; }
+.chip.ai { background: #efe6fb; }
+.see { align-self: flex-start; border: 0; background: none; cursor: pointer; font-family: var(--font-kid); font-size: 16px; color: var(--c); padding: 0; text-decoration: underline wavy; text-underline-offset: 5px; }
+.stamp { position: absolute; top: 26px; font-family: var(--font-kid); font-size: 40px; padding: 0 16px 4px; border: 5px solid; border-radius: 14px 8px 16px 10px; opacity: 0; pointer-events: none; z-index: 2; background: rgba(255,255,255,.75); }
+.stamp.yes { left: 22px; color: var(--gruen); transform: rotate(-14deg); }
+.stamp.no { right: 22px; color: var(--rot); transform: rotate(12deg); }
+.actions { display: flex; justify-content: center; align-items: center; gap: 22px; margin-top: 24px; }
+.act { width: 76px; height: 76px; border-radius: 50%; border: 0; background: var(--card); cursor: pointer; display: grid; place-items: center; box-shadow: 0 6px 16px rgba(70,50,20,.15); position: relative; }
+.act::before { content: ""; position: absolute; inset: 3px; border: 3px solid var(--c); border-radius: 50% 46% 52% 48%; filter: url(#crayon); }
+.act svg { width: 38px; height: 38px; position: relative; }
+.act.no { --c: var(--rot); } .act.yes { --c: var(--gruen); }
+.act.info { --c: var(--blau); width: 54px; height: 54px; }
+.act.info span { font-family: var(--font-kid); font-size: 24px; color: var(--blau); position: relative; }
+.act:focus-visible { outline: 3px dashed var(--c); outline-offset: 4px; }
+@media (prefers-reduced-motion: no-preference) { .act { transition: transform .15s; } .act:active { transform: scale(.9); } }
+.hint-row { text-align: center; color: var(--pencil); font-size: 17px; margin: 14px 0 0; }
+.empty-deck { max-width: 380px; margin: 0 auto; text-align: center; padding: 30px 18px; position: relative; --c: var(--orange); }
+.empty-deck::before { content: ""; position: absolute; inset: 0; border: 3px dashed var(--c); border-radius: var(--wobble); filter: url(#crayon); }
+.empty-deck > * { position: relative; }
+.empty-deck .big { font-size: 64px; }
+.empty-deck h3 { font-family: var(--font-kid); font-weight: 400; margin: 6px 0; font-size: 24px; }
+.btn { font-family: var(--font-kid); font-size: 17px; border: 0; cursor: pointer; padding: 6px 16px 9px; border-radius: 14px 8px 16px 10px; background: var(--gruen); color: #fff; }
+.btn.soft { background: #ffe7a3; color: var(--ink); }
+.btn.lila { background: var(--lila); color: #fff; }
+.btn:focus-visible, .see:focus-visible { outline: 3px dashed var(--blau); outline-offset: 3px; }
+.btn[disabled] { opacity: .6; cursor: wait; }
+.btn-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+.ai-row { text-align: center; margin-top: 18px; }
+.ai-status { color: var(--pencil); font-size: 17px; margin-top: 6px; min-height: 1.2em; }
 
-.day { --c: var(--rot); padding: 22px 18px 16px; transform: rotate(var(--tilt, 0deg)); min-width: 0; display: flex; flex-direction: column; gap: 10px; }
-.day h2 { font-family: var(--font-kid); font-weight: 400; font-size: 30px; line-height: 1; margin: 0; color: var(--c); filter: url(#crayon); display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-.today-badge { font-family: var(--font-kid); font-size: 15px; color: var(--paper); background: var(--c); padding: 2px 10px 4px; border-radius: var(--wobble); transform: rotate(-6deg); display: inline-block; }
-.meal { display: grid; grid-template-columns: 54px minmax(0, 1fr) auto; gap: 8px; align-items: center; }
-.meal-name { grid-column: 1 / -1; font-family: var(--font-kid); font-size: 14px; color: var(--pencil); margin-bottom: -8px; padding-left: 62px; }
-.sticker {
-  width: 54px; height: 54px; border: 0; background: none; cursor: pointer; font-size: 32px; line-height: 1; position: relative; padding: 0;
-  display: grid; place-items: center;
-}
-.sticker::before { content: ""; position: absolute; inset: 2px; border: 3px dashed var(--c); border-radius: 50% 45% 52% 48%; filter: url(#crayon); opacity: .6; }
-.sticker.has::before { border-style: solid; opacity: 1; background: color-mix(in srgb, var(--c) 12%, transparent); }
-.sticker span { position: relative; transform: rotate(var(--st, -8deg)); }
-.sticker .plus { font-family: var(--font-kid); font-size: 26px; color: var(--c); opacity: .7; }
-.sticker:focus-visible, .dice:focus-visible, .eraser:focus-visible { outline: 3px dashed var(--c); outline-offset: 2px; border-radius: 12px; }
-.dish {
-  width: 100%; min-width: 0; font-family: var(--font-hand); font-size: 22px; color: var(--ink);
-  border: 0; border-bottom: 2px dotted color-mix(in srgb, var(--c) 55%, transparent); background: transparent; padding: 4px 2px;
-}
-.dish::placeholder { color: #b8b2a6; }
-.dish:focus { outline: none; border-bottom: 3px solid var(--c); }
-.dice { width: 40px; height: 40px; border: 0; background: none; cursor: pointer; padding: 0; color: var(--c); }
-.dice svg { width: 100%; height: 100%; filter: url(#crayon); }
-@media (prefers-reduced-motion: no-preference) { .dice.roll svg { animation: roll .5s ease-out; } @keyframes roll { to { transform: rotate(360deg) scale(1.1); } } }
-
-.pad-head { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
-.pad-label { font-family: var(--font-kid); font-size: 15px; color: var(--c); transform: rotate(-2deg); }
-.eraser { font-family: var(--font-kid); font-size: 14px; border: 0; background: #ffd1dc; color: var(--ink); padding: 3px 10px 5px; border-radius: 8px 14px 9px 12px; cursor: pointer; transform: rotate(3deg); }
-.eraser.sure { background: var(--rot); color: var(--paper); }
-.pad { position: relative; aspect-ratio: 2 / 1; width: 100%; max-width: 100%; }
-.pad canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: crosshair; border-radius: 14px 8px 16px 10px; background: rgba(255,255,255,.7); }
-.pad .hint { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--font-kid); font-size: 15px; color: #bdb6a8; pointer-events: none; text-align: center; padding: 8px; }
-.pad::before { content: ""; position: absolute; inset: 0; border: 2px dashed var(--c); border-radius: 14px 8px 16px 10px; opacity: .45; pointer-events: none; filter: url(#crayon); }
+/* ---------- Gewählte Gerichte ---------- */
+.done-head { text-align: center; margin: 4px 0 14px; }
+.done-head h2 { font-family: var(--font-kid); font-weight: 400; font-size: 30px; margin: 0; color: var(--gruen); }
+.done-head p { margin: 2px 0 0; color: var(--pencil); }
+.picked-list { display: grid; gap: 12px; }
+.pick { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 4px 12px; align-items: center; padding: 12px 14px; background: var(--card); border-radius: 16px 10px 18px 12px; position: relative; }
+.pick::before { content: ""; position: absolute; inset: 0; border: 3px solid var(--c); border-radius: var(--wobble); filter: url(#crayon); pointer-events: none; }
+.pick .em { font-size: 46px; line-height: 1; grid-row: span 2; text-align: center; }
+.pick h3 { margin: 0; font-family: var(--font-kid); font-weight: 400; font-size: 21px; line-height: 1.2; color: var(--c); }
+.pick .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+.pick .row button { border: 0; background: none; cursor: pointer; font-size: 17px; padding: 0; text-decoration: underline; text-underline-offset: 3px; color: var(--pencil); position: relative; }
+.pick .row button.open { color: var(--blau); }
 
 /* ---------- Einkaufszettel ---------- */
-aside { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 14px); transform: rotate(1.4deg); }
-@media (max-width: 960px) { aside { position: static; max-width: 420px; margin: 10px auto 0; } }
 .note {
-  background: #fff; padding: 34px 18px 22px 46px; position: relative;
-  background-image: linear-gradient(var(--paper) 0 0), repeating-linear-gradient(transparent 0 31px, var(--lined) 31px 33px);
-  background-size: 2px 100%, 100% 100%; background-position: 34px 0, 0 22px; background-repeat: no-repeat, repeat;
-  box-shadow: 2px 4px 0 rgba(0,0,0,.06), 0 10px 26px rgba(80,60,20,.12);
-  border-radius: 3px 6px 4px 8px;
+  margin-top: 34px; background: #fff; padding: 36px 16px 22px 46px; position: relative; transform: rotate(.6deg);
+  background-image: repeating-linear-gradient(transparent 0 33px, var(--lined) 33px 35px);
+  background-position: 0 24px;
+  box-shadow: 2px 4px 0 rgba(0,0,0,.05), 0 10px 26px rgba(80,60,20,.12); border-radius: 3px 6px 4px 8px;
 }
 .note::before { content: ""; position: absolute; top: 0; bottom: 0; left: 34px; width: 2px; background: var(--margin-red); }
-.tape { position: absolute; top: -14px; left: 50%; width: 110px; height: 30px; background: var(--tape); transform: translateX(-50%) rotate(-4deg); clip-path: polygon(3% 8%, 97% 0, 100% 92%, 2% 100%); }
-.note h2 { font-family: var(--font-kid); font-weight: 400; font-size: 28px; margin: 0 0 6px; color: var(--blau); filter: url(#crayon); }
-.add { display: flex; gap: 6px; margin-bottom: 6px; }
-.add input { flex: 1; min-width: 0; font-family: var(--font-hand); font-size: 21px; border: 0; border-bottom: 2px solid var(--blau); background: transparent; padding: 2px; color: var(--ink); }
-.add input:focus { outline: none; border-bottom-width: 3px; }
-.add button { font-family: var(--font-kid); font-size: 16px; border: 0; background: var(--gruen); color: #fff; padding: 2px 12px 4px; border-radius: 12px 6px 14px 8px; cursor: pointer; transform: rotate(-3deg); }
-.add button:focus-visible, .clear:focus-visible { outline: 3px dashed var(--blau); outline-offset: 2px; }
+.tape { position: absolute; top: -14px; left: 50%; width: 120px; height: 30px; background: var(--tape); transform: translateX(-50%) rotate(-3deg); clip-path: polygon(3% 8%, 97% 0, 100% 92%, 2% 100%); }
+.note h2 { font-family: var(--font-kid); font-weight: 400; font-size: 28px; margin: 0; color: var(--blau); }
+.note .sub { color: var(--pencil); font-size: 17px; margin: 0 0 10px; }
+.how { background: #eef8ee; border-radius: 12px 8px 14px 9px; padding: 10px 12px; margin: 0 0 12px; font-size: 17px; }
+.how ol { margin: 4px 0 0; padding-left: 22px; }
+.note-tools { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
 ul.shop { list-style: none; margin: 0; padding: 0; }
-ul.shop li { display: flex; align-items: center; gap: 10px; min-height: 33px; font-size: 22px; }
-.check { width: 26px; height: 26px; flex: none; border: 0; padding: 0; background: none; cursor: pointer; color: var(--blau); }
-.check svg { width: 100%; height: 100%; filter: url(#crayon); overflow: visible; }
+ul.shop li { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 10px; align-items: center; min-height: 35px; padding: 2px 0; }
+.check { width: 28px; height: 28px; border: 0; padding: 0; background: none; cursor: pointer; color: var(--blau); }
+.check svg { width: 100%; height: 100%; overflow: visible; }
 .check:focus-visible { outline: 2px dashed var(--blau); outline-offset: 2px; }
-ul.shop li span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
-ul.shop li.done span { color: var(--pencil); text-decoration: line-through wavy var(--rot); }
-.del { border: 0; background: none; font-family: var(--font-kid); font-size: 18px; color: var(--pencil); cursor: pointer; padding: 0 4px; }
-.empty { color: var(--pencil); font-size: 19px; }
-.clear { margin-top: 10px; font-family: var(--font-kid); font-size: 15px; border: 0; background: #ffe7a3; padding: 4px 12px 6px; border-radius: 10px 6px 12px 7px; cursor: pointer; transform: rotate(-2deg); }
-.save-note { font-size: 16px; color: var(--pencil); margin: 14px 0 0; }
+.item { min-width: 0; font-size: 20px; line-height: 1.2; }
+.item .amt { color: var(--pencil); font-size: 17px; white-space: nowrap; }
+.item .for { display: block; color: var(--pencil); font-size: 14px; }
+li.got .item { text-decoration: line-through wavy var(--rot); color: var(--pencil); }
+.gk { font-family: var(--font-hand); font-size: 16px; text-decoration: none; color: #fff; background: var(--gurkerl); padding: 3px 10px 4px; border-radius: 12px 7px 13px 8px; white-space: nowrap; }
+.gk:focus-visible { outline: 3px dashed var(--gurkerl); outline-offset: 2px; }
+li.got .gk { background: #b9d8bc; }
+details.basics { margin-top: 14px; }
+details.basics summary { cursor: pointer; font-family: var(--font-kid); font-size: 16px; color: var(--pencil); }
+.copied { color: var(--gruen); font-size: 16px; align-self: center; }
+.save-note { font-size: 15px; color: var(--pencil); margin: 16px 0 0; }
 
-/* ---------- Sticker-Kiste ---------- */
-dialog { border: 0; padding: 0; background: transparent; max-width: min(520px, calc(100vw - 32px)); width: 100%; }
-dialog::backdrop { background: rgba(255, 249, 230, .75); backdrop-filter: blur(2px); }
-.kiste { --c: var(--orange); background: var(--paper); padding: 24px 20px 18px; }
-.kiste h3 { font-family: var(--font-kid); font-weight: 400; font-size: 26px; margin: 0 0 4px; color: var(--c); }
-.kiste p { margin: 0 0 12px; color: var(--pencil); }
-.sticker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)); gap: 6px; max-height: 50vh; overflow-y: auto; padding: 4px; }
-.sticker-grid button { font-size: 32px; height: 54px; border: 0; background: none; cursor: pointer; border-radius: 40% 50% 45% 55%; }
-.sticker-grid button:hover, .sticker-grid button:focus-visible { background: #fff1c9; outline: none; transform: rotate(-8deg) scale(1.15); }
-.kiste-actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
-.kiste-actions button { font-family: var(--font-kid); font-size: 16px; border: 0; padding: 4px 14px 6px; border-radius: 12px 6px 14px 8px; cursor: pointer; }
-.k-none { background: #ffd1dc; }
-.k-close { background: var(--gruen); color: #fff; }
+/* ---------- Gesperrte Runde ---------- */
+.locked { text-align: center; padding: 40px 18px; max-width: 420px; margin: 0 auto; position: relative; --c: var(--hellblau); }
+.locked::before { content: ""; position: absolute; inset: 0; border: 3px dashed var(--c); border-radius: var(--wobble); filter: url(#crayon); }
+.locked > * { position: relative; }
+.locked .big { font-size: 60px; }
+.locked h3 { font-family: var(--font-kid); font-weight: 400; font-size: 24px; margin: 6px 0; }
 
-/* Konfetti-Kritzel */
-.burst { position: fixed; pointer-events: none; z-index: 50; font-family: var(--font-kid); font-size: 22px; }
-@media (prefers-reduced-motion: no-preference) { .burst { animation: fly .9s ease-out forwards; } @keyframes fly { to { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); opacity: 0; } } }
+/* ---------- Rezept-Fenster ---------- */
+dialog { border: 0; padding: 0; background: transparent; width: min(560px, calc(100vw - 24px)); max-height: calc(100dvh - 32px); }
+dialog::backdrop { background: rgba(255, 249, 230, .78); backdrop-filter: blur(2px); }
+.sheet { background: var(--paper); border-radius: 22px 16px 24px 18px; padding: 22px 20px 20px; position: relative; max-height: calc(100dvh - 32px); overflow-y: auto; }
+.sheet::before { content: ""; position: absolute; inset: 4px; border: 3px solid var(--c); border-radius: var(--wobble); filter: url(#crayon); pointer-events: none; }
+.sheet .top { display: flex; gap: 14px; align-items: center; }
+.sheet .em { font-size: 64px; line-height: 1; }
+.sheet h2 { font-family: var(--font-kid); font-weight: 400; font-size: 26px; line-height: 1.15; margin: 0; color: var(--c); text-wrap: balance; }
+.sheet h4 { font-family: var(--font-kid); font-weight: 400; font-size: 19px; margin: 18px 0 6px; color: var(--c); }
+.sheet ul { margin: 0; padding-left: 20px; }
+.sheet ul li span { color: var(--pencil); }
+.sheet ol { margin: 0; padding-left: 24px; display: grid; gap: 8px; }
+.sheet .close { position: absolute; top: 12px; right: 14px; border: 0; background: none; font-family: var(--font-kid); font-size: 24px; cursor: pointer; z-index: 1; padding: 2px 8px; }
+.sheet .close:focus-visible { outline: 2px dashed var(--c); }
+.sheet .sheet-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+
+/* Konfetti */
+.burst { position: fixed; pointer-events: none; z-index: 50; font-family: var(--font-kid); font-size: 24px; }
+@media (prefers-reduced-motion: no-preference) { .burst { animation: fly 1s ease-out forwards; } @keyframes fly { to { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); opacity: 0; } } }
 @media (prefers-reduced-motion: reduce) { .burst { display: none; } }
-.footer-doodle { margin-top: 40px; text-align: center; font-family: var(--font-kid); color: var(--pencil); font-size: 16px; }
+
+@media (max-width: 480px) {
+  .stage { height: 470px; }
+  .rcard .pic { height: 180px; } .rcard .pic .em { font-size: 92px; }
+  .slot .em { font-size: 24px; } .slot .nm { font-size: 12px; }
+  .sun { width: 64px; }
+  .tab { padding: 8px 10px 10px; } .tab .t1 { font-size: 17px; }
+}
 </style>
 
 <svg class="svg-defs" aria-hidden="true">
@@ -178,11 +219,18 @@ dialog::backdrop { background: rgba(255, 249, 230, .75); backdrop-filter: blur(2
   </defs>
 </svg>
 
-<div class="wrap">
+<div class="wrap" lang="de">
   <header>
     <div>
       <h1 id="title" aria-label="Unser Mampf-Plan"></h1>
-      <p class="tagline">Was futtern wir diese Woche? Malt, klebt und würfelt los!</p>
+      <p class="week-label" id="weekLabel"></p>
+      <div class="persons">
+        Wir sind
+        <button type="button" id="pMinus" aria-label="Eine Person weniger">−</button>
+        <b id="pCount">4</b>
+        <button type="button" id="pPlus" aria-label="Eine Person mehr">+</button>
+        Personen
+      </div>
     </div>
     <svg class="sun" viewBox="0 0 120 120" aria-hidden="true">
       <g class="rays" stroke="#f77f00" stroke-width="6" stroke-linecap="round">
@@ -192,444 +240,581 @@ dialog::backdrop { background: rgba(255, 249, 230, .75); backdrop-filter: blur(2
       <path d="M60 30 C78 29 91 43 90 61 C89 79 76 91 59 90 C41 89 29 76 30 59 C31 42 43 31 60 30 Z" fill="#f9c22e" stroke="#f77f00" stroke-width="5"/>
       <circle cx="49" cy="55" r="4" fill="#2b2b2b"/><circle cx="71" cy="55" r="4" fill="#2b2b2b"/>
       <path d="M46 68 C53 78 67 78 74 67" fill="none" stroke="#2b2b2b" stroke-width="4" stroke-linecap="round"/>
-      <circle cx="42" cy="66" r="5" fill="#ff5fa2" opacity=".55"/><circle cx="78" cy="66" r="5" fill="#ff5fa2" opacity=".55"/>
     </svg>
   </header>
 
-  <div class="box">
-    <span class="box-label">Nimm dir einen Stift:</span>
-    <div class="crayons" id="crayons" role="group" aria-label="Wachsmalstifte"></div>
-    <span class="picked" id="picked"></span>
-  </div>
+  <div class="strip" id="strip" aria-label="Die Gerichte dieser Woche"></div>
+  <div class="strip-legend"><span>Montag-Einkauf</span><span>Mittwoch-Einkauf</span></div>
 
-  <div class="layout">
-    <main class="week" id="week"></main>
-
-    <aside>
-      <div class="note">
-        <div class="tape"></div>
-        <h2>Einkaufszettel</h2>
-        <form class="add" id="addForm">
-          <input id="addInput" placeholder="Was fehlt noch?" autocomplete="off" aria-label="Neuer Eintrag für den Einkaufszettel">
-          <button type="submit">Dazu!</button>
-        </form>
-        <ul class="shop" id="shop"></ul>
-        <button class="clear" id="clearDone" type="button">Abgehakte wegradieren</button>
-        <p class="save-note" id="modeNote">Wird gespeichert…</p>
-      </div>
-    </aside>
-  </div>
-
-  <p class="footer-doodle">Gemalt von der ganzen Familie ♥</p>
+  <div class="tabs" role="tablist" id="tabs"></div>
+  <main id="round"></main>
 </div>
 
-<dialog id="kiste" aria-labelledby="kisteTitle">
-  <div class="kiste scribble">
-    <h3 id="kisteTitle">Sticker-Kiste</h3>
-    <p id="kisteFor">Such dir einen Sticker aus!</p>
-    <div class="sticker-grid" id="stickerGrid"></div>
-    <div class="kiste-actions">
-      <button class="k-none" id="kNone" type="button">Sticker abziehen</button>
-      <button class="k-close" id="kClose" type="button">Fertig</button>
-    </div>
-  </div>
-</dialog>
+<dialog id="recipeDlg" aria-labelledby="dlgTitle"><div class="sheet" id="sheet"></div></dialog>
 
 <script>
-const CRAYONS = [
-  ["rot", "Rot", "#e5383b"], ["orange", "Orange", "#f77f00"], ["gelb", "Gelb", "#f9c22e"], ["gruen", "Grün", "#2a9d3f"],
-  ["hellblau", "Himmelblau", "#2fa4e7"], ["blau", "Blau", "#3a5bd9"], ["lila", "Lila", "#8e44ad"], ["rosa", "Rosa", "#ff5fa2"],
-  ["braun", "Braun", "#8b5a2b"], ["schwarz", "Schwarz", "#2b2b2b"]
+// ================= Rezepte (Mengen für 4 Personen) =================
+const BASICS = new Set(["Salz", "Pfeffer", "Olivenöl", "Sonnenblumenöl", "Zucker", "Gemüsebrühe", "Oregano", "Currypulver", "Paprikapulver", "Majoran", "Muskatnuss", "Kreuzkümmel", "Zimt", "Kräuter der Provence", "Essig", "Senf", "Ketchup"]);
+const R = (id, emoji, name, desc, time, ing, steps) => ({ id, emoji, name, desc, time, ing: ing.map(s => { const [n, q, u] = s.split("|"); return [n, Number(q || 0), u || ""]; }), steps });
+const RECIPES = [
+  R("bolognese", "🍝", "Spaghetti Bolognese", "Der Klassiker, den alle Kinder lieben. Viel Gemüse ist in der Sauce versteckt.", 40,
+    ["Spaghetti|500|g", "Rinderfaschiertes|400|g", "Zwiebel|1|Stk", "Karotten|2|Stk", "Knoblauch|2|Zehe", "Passierte Tomaten|700|ml", "Tomatenmark|2|EL", "Parmesan|60|g", "Olivenöl|2|EL", "Oregano|1|TL", "Salz", "Pfeffer"],
+    ["Zwiebel, Karotten und Knoblauch klein schneiden.", "Öl erhitzen, Faschiertes darin krümelig anbraten. Gemüse dazugeben und 5 Minuten mitbraten.", "Tomatenmark kurz mitrösten, passierte Tomaten und Oregano dazu. 20 Minuten leise köcheln lassen, mit Salz und Pfeffer abschmecken.", "Spaghetti in Salzwasser nach Packung kochen.", "Mit Sauce und geriebenem Parmesan servieren."]),
+  R("kaiserschmarrn", "🥞", "Kaiserschmarrn mit Apfelmus", "Flaumig, zerrupft und mit Staubzucker. Ein süßes Hauptgericht, das alle glücklich macht.", 30,
+    ["Eier|6|Stk", "Milch|400|ml", "Mehl|250|g", "Zucker|2|EL", "Butter|40|g", "Rosinen|50|g", "Staubzucker|2|EL", "Apfelmus|500|g", "Salz"],
+    ["Eier trennen. Dotter mit Milch, Mehl, Zucker und einer Prise Salz glatt rühren.", "Eiklar steif schlagen und vorsichtig unterheben.", "Butter in einer großen Pfanne schmelzen, Teig hineingießen, Rosinen darüberstreuen und bei mittlerer Hitze 5 Minuten stocken lassen.", "Wenden (in Vierteln geht's leichter), mit zwei Gabeln in Stücke reißen und 3 Minuten fertig braten.", "Mit Staubzucker bestreuen und mit Apfelmus servieren."]),
+  R("kasnocken", "🧀", "Kasnocken mit Röstzwiebeln", "Würzige Käsenockerl aus der Pfanne. Schnell gemacht und richtig gemütlich.", 35,
+    ["Mehl|400|g", "Eier|4|Stk", "Milch|150|ml", "Bergkäse|200|g", "Zwiebel|3|Stk", "Butter|40|g", "Schnittlauch|1|Bund", "Salz", "Pfeffer", "Muskatnuss"],
+    ["Mehl, Eier, Milch, 1 TL Salz und etwas Muskat zu einem zähen Teig schlagen, bis er Blasen wirft. 10 Minuten rasten lassen.", "Zwiebeln in Ringe schneiden und in der Hälfte der Butter langsam goldbraun rösten.", "Teig mit einem Nockerlhobel in kochendes Salzwasser drücken. Sobald die Nockerl oben schwimmen, abschöpfen.", "Nockerl mit der restlichen Butter in einer Pfanne schwenken, geriebenen Käse unterheben, bis er schmilzt.", "Mit Röstzwiebeln, Pfeffer und Schnittlauch servieren."]),
+  R("curry", "🍛", "Mildes Hühner-Curry mit Reis", "Cremig mit Kokosmilch und gar nicht scharf. Die süßen Erbsen mögen Kinder besonders.", 35,
+    ["Hühnerbrust|500|g", "Basmatireis|300|g", "Kokosmilch|1|Dose", "Zwiebel|1|Stk", "Erbsen (TK)|200|g", "Karotten|2|Stk", "Currypulver|2|TL", "Sonnenblumenöl|2|EL", "Salz"],
+    ["Reis nach Packung kochen.", "Zwiebel würfeln, Karotten in dünne Scheiben schneiden, Huhn in mundgerechte Stücke.", "Huhn im Öl rundum anbraten, Zwiebel und Karotten dazu, Currypulver darüberstäuben und kurz mitrösten.", "Kokosmilch angießen und 10 Minuten köcheln. Erbsen dazu, noch 5 Minuten ziehen lassen, salzen.", "Mit dem Reis servieren."]),
+  R("lasagne", "🥬", "Spinat-Lasagne", "Saftig mit Spinat, Ricotta und viel Käse obendrauf. Lässt sich gut am Vortag vorbereiten.", 70,
+    ["Lasagneblätter|250|g", "Blattspinat (TK)|600|g", "Ricotta|250|g", "Mozzarella|2|Stk", "Passierte Tomaten|700|ml", "Zwiebel|1|Stk", "Knoblauch|2|Zehe", "Parmesan|50|g", "Olivenöl|2|EL", "Salz", "Pfeffer", "Muskatnuss"],
+    ["Ofen auf 180 °C Umluft vorheizen. Spinat auftauen und gut ausdrücken.", "Zwiebel und Knoblauch fein hacken und in Öl andünsten. Spinat dazu, mit Salz, Pfeffer und Muskat würzen. Vom Herd nehmen und Ricotta unterrühren.", "Passierte Tomaten salzen. In eine Auflaufform abwechselnd Tomatensauce, Lasagneblätter und Spinatmasse schichten. Mit Tomatensauce enden.", "Mozzarella in Scheiben darauflegen und Parmesan darüberreiben. 40 Minuten backen, dann 10 Minuten rasten lassen."]),
+  R("dal", "🍲", "Rote-Linsen-Dal mit Fladenbrot", "Wärmend, günstig und voller Kraft. Mit Fladenbrot wird getunkt.", 30,
+    ["Rote Linsen|300|g", "Kokosmilch|1|Dose", "Passierte Tomaten|400|ml", "Zwiebel|1|Stk", "Knoblauch|2|Zehe", "Ingwer|1|Stk", "Fladenbrot|1|Stk", "Currypulver|2|TL", "Gemüsebrühe|500|ml", "Sonnenblumenöl|2|EL", "Salz"],
+    ["Zwiebel, Knoblauch und Ingwer fein hacken und in Öl glasig dünsten.", "Currypulver kurz mitrösten. Linsen, Tomaten, Kokosmilch und Brühe dazugeben.", "Etwa 20 Minuten köcheln, bis die Linsen zerfallen. Öfter umrühren und bei Bedarf Wasser nachgießen.", "Mit Salz abschmecken und mit warmem Fladenbrot servieren."]),
+  R("fischstaebchen", "🐟", "Fischstäbchen mit Erdäpfelpüree", "Knusprig und cremig. Erbsen bringen Farbe auf den Teller.", 30,
+    ["Fischstäbchen (TK)|1|Pkg", "Erdäpfel mehlig|1000|g", "Milch|200|ml", "Butter|40|g", "Erbsen (TK)|300|g", "Zitrone|1|Stk", "Salz", "Muskatnuss"],
+    ["Erdäpfel schälen, vierteln und in Salzwasser 20 Minuten weich kochen.", "Fischstäbchen nach Packung im Ofen oder in der Pfanne knusprig braten.", "Erbsen in wenig Wasser 5 Minuten garen.", "Erdäpfel abgießen. Milch und Butter erwärmen, dazugeben und alles zu Püree stampfen. Mit Salz und Muskat würzen.", "Mit Zitronenspalten servieren."]),
+  R("pizza", "🍕", "Pizza zum Selberbelegen", "Jeder belegt sein eigenes Stück. Macht Spaß, und es bleibt nie was übrig.", 45,
+    ["Pizzateig (Kühlregal)|2|Pkg", "Passierte Tomaten|400|ml", "Mozzarella|2|Stk", "Schinken|150|g", "Champignons|200|g", "Paprika|1|Stk", "Mais|1|Dose", "Oregano|1|TL", "Olivenöl|1|EL", "Salz"],
+    ["Ofen auf 220 °C Ober-/Unterhitze vorheizen.", "Pizzateig auf Backbleche legen. Passierte Tomaten mit Salz und Oregano verrühren und dünn aufstreichen.", "Champignons, Paprika und Schinken schneiden, Mais abtropfen lassen. Alles in Schüsseln auf den Tisch stellen.", "Jeder belegt seinen Teil, zum Schluss Mozzarella-Stücke darauf.", "12 bis 15 Minuten backen, bis der Rand goldbraun ist."]),
+  R("erdaepfelgulasch", "🥔", "Erdäpfelgulasch mit Würstel", "Ein Wiener Klassiker. Am nächsten Tag schmeckt er sogar noch besser.", 45,
+    ["Erdäpfel speckig|1000|g", "Zwiebel|3|Stk", "Frankfurter Würstel|4|Stk", "Paprikapulver|2|EL", "Tomatenmark|1|EL", "Gemüsebrühe|800|ml", "Majoran|1|TL", "Sonnenblumenöl|2|EL", "Salz", "Pfeffer"],
+    ["Zwiebeln fein würfeln und in Öl goldbraun rösten.", "Tomatenmark und Paprikapulver kurz einrühren (nicht anbrennen lassen) und sofort mit Brühe ablöschen.", "Erdäpfel schälen, würfeln, dazugeben und mit Majoran 25 Minuten köcheln, bis sie weich sind und das Gulasch sämig wird.", "Würstel in Scheiben schneiden und die letzten 5 Minuten mitziehen lassen. Salzen und pfeffern."]),
+  R("huehnersuppe", "🍜", "Hühnersuppe mit Nudeln", "Die Suppe, die gegen alles hilft. Mit zartem Hühnerfleisch und vielen Nudeln.", 70,
+    ["Hühnerkeulen|4|Stk", "Suppengrün|1|Bund", "Karotten|3|Stk", "Zwiebel|1|Stk", "Suppennudeln|200|g", "Schnittlauch|1|Bund", "Salz", "Pfeffer"],
+    ["Hühnerkeulen mit 2,5 l kaltem Wasser, der halbierten Zwiebel und 1 EL Salz aufsetzen und 45 Minuten leise köcheln.", "Suppengrün und Karotten putzen, in kleine Würfel schneiden und die letzten 15 Minuten mitkochen.", "Keulen herausheben, Fleisch von den Knochen lösen, klein zupfen und zurück in die Suppe geben.", "Nudeln in der Suppe nach Packung garen. Abschmecken und mit Schnittlauch servieren."]),
+  R("ofengemuese", "🥕", "Ofengemüse mit Feta und Dip", "Bunt wie ein Regenbogen. Alles kommt auf ein Blech, der Ofen macht den Rest.", 45,
+    ["Erdäpfel speckig|600|g", "Karotten|3|Stk", "Zucchini|1|Stk", "Paprika|2|Stk", "Rote Zwiebel|2|Stk", "Feta|200|g", "Joghurt|250|g", "Knoblauch|1|Zehe", "Olivenöl|4|EL", "Kräuter der Provence|1|TL", "Salz", "Pfeffer"],
+    ["Ofen auf 200 °C Umluft vorheizen.", "Erdäpfel und Karotten in Spalten, Zucchini, Paprika und Zwiebeln in grobe Stücke schneiden.", "Alles mit Öl, Kräutern, Salz und Pfeffer auf einem Blech mischen und 25 Minuten backen.", "Feta darüberbröseln und weitere 10 Minuten backen.", "Joghurt mit gepresstem Knoblauch und Salz verrühren und als Dip dazu reichen."]),
+  R("wraps", "🌯", "Hühner-Wraps zum Selberrollen", "Alles kommt in die Mitte vom Tisch, und jeder rollt sich seinen Wrap selbst.", 25,
+    ["Tortilla-Wraps|8|Stk", "Hühnerbrust|400|g", "Eisbergsalat|1|Stk", "Paradeiser|3|Stk", "Gurke|1|Stk", "Mais|1|Dose", "Sauerrahm|250|g", "Gouda gerieben|150|g", "Paprikapulver|1|TL", "Sonnenblumenöl|1|EL", "Salz"],
+    ["Huhn in dünne Streifen schneiden, mit Paprikapulver und Salz würzen und im Öl 6 bis 8 Minuten braten.", "Salat in Streifen, Paradeiser und Gurke in kleine Würfel schneiden, Mais abtropfen lassen.", "Sauerrahm mit etwas Salz verrühren.", "Wraps kurz in einer trockenen Pfanne erwärmen.", "Alles auf den Tisch stellen, jeder füllt und rollt selbst."]),
+  R("minestrone", "🥣", "Minestrone mit Nudeln", "Italienische Gemüsesuppe, die richtig satt macht. Perfekt, um Gemüse zu verstecken.", 40,
+    ["Karotten|2|Stk", "Zucchini|1|Stk", "Stangensellerie|2|Stk", "Zwiebel|1|Stk", "Erdäpfel speckig|300|g", "Weiße Bohnen|1|Dose", "Passierte Tomaten|400|ml", "Gemüsebrühe|1200|ml", "Kleine Suppennudeln|150|g", "Parmesan|40|g", "Olivenöl|2|EL", "Salz", "Pfeffer"],
+    ["Zwiebel, Karotten, Sellerie, Zucchini und Erdäpfel in kleine Würfel schneiden.", "Zwiebel in Öl andünsten, das restliche Gemüse dazu und 5 Minuten mitdünsten.", "Tomaten und Brühe angießen und 15 Minuten köcheln.", "Bohnen abspülen und mit den Nudeln dazugeben. Weitere 8 Minuten kochen.", "Abschmecken und mit geriebenem Parmesan servieren."]),
+  R("putenschnitzel", "🍗", "Putenschnitzel mit Erdäpfelsalat", "Goldbraun paniert, dazu ein flaumiger Erdäpfelsalat. Österreich auf dem Teller.", 60,
+    ["Putenschnitzel|600|g", "Eier|2|Stk", "Mehl|80|g", "Semmelbrösel|150|g", "Sonnenblumenöl|200|ml", "Erdäpfel speckig|1000|g", "Rote Zwiebel|1|Stk", "Gemüsebrühe|200|ml", "Essig|3|EL", "Senf|1|TL", "Zitrone|1|Stk", "Salz", "Pfeffer"],
+    ["Erdäpfel in der Schale 25 Minuten kochen, schälen und noch warm in dünne Scheiben schneiden.", "Zwiebel fein hacken. Warme Brühe mit Essig, Senf, 3 EL Öl, Salz und Pfeffer verrühren und mit der Zwiebel über die Erdäpfel gießen. Gut mischen und 20 Minuten ziehen lassen.", "Schnitzel dünn klopfen und salzen. Erst in Mehl, dann in verquirltem Ei, dann in Bröseln wenden.", "In reichlich heißem Öl auf jeder Seite etwa 3 Minuten goldbraun backen. Auf Küchenpapier abtropfen lassen.", "Mit Zitronenspalten und Erdäpfelsalat servieren."]),
+  R("risotto", "🫛", "Erbsen-Risotto", "Cremig, grün und mild. Ein Löffelgericht, das auch kleine Esser mögen.", 35,
+    ["Risottoreis|350|g", "Erbsen (TK)|300|g", "Zwiebel|1|Stk", "Gemüsebrühe|1200|ml", "Parmesan|80|g", "Butter|30|g", "Olivenöl|2|EL", "Salz", "Pfeffer"],
+    ["Brühe erhitzen und warm halten. Zwiebel fein würfeln.", "Zwiebel in Öl glasig dünsten, Reis dazu und 1 Minute mitrühren.", "Nach und nach je einen Schöpfer heiße Brühe angießen und rühren, bis sie aufgesogen ist. So etwa 18 Minuten weitermachen.", "Erbsen die letzten 5 Minuten mitgaren.", "Vom Herd nehmen, Butter und geriebenen Parmesan unterrühren und kurz zugedeckt rasten lassen."]),
+  R("chili", "🌶️", "Chili sin Carne mit Reis", "Mit Bohnen, Mais und einem Klecks Sauerrahm. Mild gewürzt, Schärfe gibt sich jeder selbst dazu.", 40,
+    ["Kidneybohnen|2|Dose", "Mais|1|Dose", "Passierte Tomaten|700|ml", "Zwiebel|1|Stk", "Knoblauch|2|Zehe", "Paprika|2|Stk", "Basmatireis|250|g", "Sauerrahm|250|g", "Kreuzkümmel|1|TL", "Paprikapulver|1|TL", "Olivenöl|2|EL", "Salz"],
+    ["Reis nach Packung kochen.", "Zwiebel, Knoblauch und Paprika würfeln und in Öl 5 Minuten anbraten.", "Gewürze kurz mitrösten. Tomaten, abgespülte Bohnen und Mais dazugeben.", "20 Minuten köcheln lassen und salzen.", "Mit Reis und Sauerrahm servieren."]),
+  R("gefuelltepaprika", "🫑", "Gefüllte Paprika mit Paradeissauce", "Ein Rezept wie von der Oma, dazu gibt's Erdäpfel.", 75,
+    ["Paprika|6|Stk", "Rinderfaschiertes|500|g", "Basmatireis|100|g", "Eier|1|Stk", "Zwiebel|1|Stk", "Passierte Tomaten|700|ml", "Erdäpfel speckig|800|g", "Zucker|1|TL", "Majoran|1|TL", "Salz", "Pfeffer"],
+    ["Reis in Salzwasser 10 Minuten vorkochen und abgießen.", "Zwiebel fein hacken. Faschiertes mit Reis, Zwiebel, Ei, Majoran, Salz und Pfeffer vermischen.", "Paprika oben aufschneiden, entkernen und mit der Masse füllen. Deckel wieder draufsetzen.", "Passierte Tomaten mit Zucker und Salz in einem breiten Topf aufkochen. Paprika hineinstellen und zugedeckt 45 Minuten leise köcheln.", "Erdäpfel schälen, in Salzwasser 20 Minuten kochen und alles zusammen servieren."]),
+  R("lachs", "🍋", "Lachs mit Brokkoli und Reis", "Schnell, gesund und mit Zitronenbutter. Gut für einen stressigen Tag.", 25,
+    ["Lachsfilet|4|Stk", "Brokkoli|1|Stk", "Basmatireis|300|g", "Zitrone|1|Stk", "Butter|30|g", "Olivenöl|1|EL", "Salz", "Pfeffer"],
+    ["Reis nach Packung kochen.", "Brokkoli in Röschen teilen und 5 Minuten in Salzwasser garen.", "Lachs salzen und in Öl auf der Hautseite 4 Minuten braten, wenden und 2 Minuten fertig braten.", "Butter in der Pfanne schmelzen, den Saft einer halben Zitrone dazugeben und über Lachs und Brokkoli träufeln.", "Mit Reis und Zitronenspalten servieren."]),
+  R("burger", "🍔", "Burger selbst gebaut", "Jeder baut seinen Turm so hoch, wie er will. Freitagabend-Stimmung garantiert.", 35,
+    ["Burgerbrötchen|4|Stk", "Rinderfaschiertes|500|g", "Käsescheiben|4|Stk", "Eisbergsalat|1|Stk", "Paradeiser|2|Stk", "Essiggurkerl|1|Glas", "Rote Zwiebel|1|Stk", "Ofen-Pommes (TK)|750|g", "Ketchup|4|EL", "Salz", "Pfeffer"],
+    ["Pommes nach Packung im Ofen backen.", "Faschiertes mit Salz und Pfeffer würzen und zu 4 flachen Laibchen formen.", "In einer heißen Pfanne pro Seite 4 Minuten braten, zum Schluss Käse darauf schmelzen lassen.", "Brötchen aufschneiden und kurz anrösten. Salat, Paradeiser, Zwiebel und Gurkerl schneiden.", "Alles auf den Tisch, jeder baut seinen Burger selbst."]),
+  R("gnocchi", "🍅", "Überbackene Gnocchi mit Paradeissauce", "In 25 Minuten fertig. Oben knusprig, unten saftig, mit Mozzarella-Fäden.", 25,
+    ["Gnocchi (Kühlregal)|1000|g", "Passierte Tomaten|700|ml", "Mozzarella|2|Stk", "Knoblauch|1|Zehe", "Basilikum|1|Topf", "Olivenöl|2|EL", "Zucker|1|TL", "Salz"],
+    ["Ofen auf 200 °C vorheizen.", "Knoblauch hacken und in Öl kurz anschwitzen. Tomaten, Zucker und Salz dazu und 10 Minuten köcheln.", "Gnocchi in der Sauce kurz erhitzen und in eine Auflaufform füllen.", "Mozzarella zerzupfen, darauf verteilen und 10 Minuten überbacken.", "Mit Basilikum bestreut servieren."]),
+  R("laibchen", "🍖", "Faschierte Laibchen mit Püree", "Saftige Fleischlaibchen wie bei Oma, dazu Erdäpfelpüree und Gurkensalat.", 50,
+    ["Gemischtes Faschiertes|600|g", "Semmel|1|Stk", "Milch|300|ml", "Eier|1|Stk", "Zwiebel|1|Stk", "Semmelbrösel|50|g", "Erdäpfel mehlig|1000|g", "Butter|40|g", "Gurke|1|Stk", "Sauerrahm|125|g", "Majoran|1|TL", "Senf|1|TL", "Sonnenblumenöl|3|EL", "Salz", "Pfeffer", "Muskatnuss"],
+    ["Semmel in Würfel schneiden und in 100 ml Milch einweichen. Zwiebel fein hacken.", "Faschiertes mit Semmel, Zwiebel, Ei, Senf, Majoran, Salz und Pfeffer gut verkneten. 8 Laibchen formen und in Bröseln wenden.", "In Öl pro Seite 5 bis 6 Minuten braten.", "Erdäpfel schälen, 20 Minuten kochen und mit der restlichen Milch und Butter zu Püree stampfen. Mit Salz und Muskat würzen.", "Gurke hobeln und mit Sauerrahm, Salz und Pfeffer anmachen."]),
+  R("milchreis", "🍚", "Milchreis mit Zimt und Apfelmus", "Süß und warm wie eine Umarmung. Kinder wünschen sich das immer wieder.", 40,
+    ["Milchreis|250|g", "Milch|1000|ml", "Zucker|3|EL", "Vanillezucker|1|Pkg", "Butter|20|g", "Apfelmus|500|g", "Zimt|1|TL", "Salz"],
+    ["Milch mit Zucker, Vanillezucker, Butter und einer Prise Salz aufkochen.", "Reis einrühren und bei kleinster Hitze zugedeckt 30 Minuten quellen lassen. Ab und zu umrühren, damit nichts anbrennt.", "Mit Zimt und Zucker bestreuen und mit Apfelmus servieren."]),
+  R("schinkenfleckerl", "🥘", "Schinkenfleckerl mit grünem Salat", "Ein österreichischer Klassiker aus Fleckerln, Schinken und Ei, im Ofen überbacken.", 50,
+    ["Fleckerl|400|g", "Schinken|250|g", "Eier|3|Stk", "Sauerrahm|250|g", "Zwiebel|1|Stk", "Butter|30|g", "Gouda gerieben|100|g", "Häuptelsalat|1|Stk", "Essig|2|EL", "Sonnenblumenöl|3|EL", "Salz", "Pfeffer"],
+    ["Ofen auf 180 °C vorheizen. Fleckerl in Salzwasser bissfest kochen und abgießen.", "Zwiebel fein hacken und in Butter glasig dünsten. Gewürfelten Schinken kurz mitbraten.", "Eier mit Sauerrahm, Salz und Pfeffer verquirlen. Mit Fleckerln und Schinken mischen und in eine gefettete Form füllen.", "Käse darüberstreuen und 25 Minuten goldbraun backen.", "Salat waschen und mit Essig, Öl und Salz marinieren."]),
+  R("kuerbissuppe", "🎃", "Kürbiscremesuppe mit Knusperbrot", "Samtig, orange und herbstlich. Die gerösteten Kürbiskerne obendrauf knuspern herrlich.", 35,
+    ["Hokkaido-Kürbis|1|Stk", "Erdäpfel mehlig|300|g", "Zwiebel|1|Stk", "Karotten|2|Stk", "Ingwer|1|Stk", "Gemüsebrühe|1000|ml", "Schlagobers|125|ml", "Kürbiskerne|40|g", "Baguette|1|Stk", "Olivenöl|2|EL", "Salz", "Pfeffer"],
+    ["Kürbis halbieren, entkernen und mit Schale in Würfel schneiden. Erdäpfel, Karotten und Zwiebel schälen und würfeln, Ingwer fein reiben.", "Zwiebel in Öl andünsten. Gemüse und Ingwer dazu, mit Brühe aufgießen und 20 Minuten weich kochen.", "Fein pürieren, Obers einrühren und mit Salz und Pfeffer abschmecken.", "Kürbiskerne in einer trockenen Pfanne rösten. Baguette in Scheiben schneiden und im Ofen knusprig backen.", "Suppe mit Kürbiskernen bestreuen und mit dem Brot servieren."])
 ];
-const DAYS = [
-  ["mo", "Montag", "var(--rot)", -1.2], ["di", "Dienstag", "var(--orange)", .9], ["mi", "Mittwoch", "var(--gruen)", -.6],
-  ["do", "Donnerstag", "var(--hellblau)", 1.1], ["fr", "Freitag", "var(--lila)", -1], ["sa", "Samstag", "var(--rosa)", .7],
-  ["so", "Sonntag", "var(--blau)", -.8]
+const COLORS = ["var(--rot)", "var(--orange)", "var(--gruen)", "var(--hellblau)", "var(--lila)", "var(--rosa)", "var(--blau)"];
+const UNITS = ["g", "ml", "Stk", "EL", "TL", "Zehe", "Bund", "Dose", "Pkg", "Glas", "Topf", ""];
+
+// ================= Woche & Runden =================
+function isoWeek(d) {
+  const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const day = t.getUTCDay() || 7;
+  t.setUTCDate(t.getUTCDate() + 4 - day);
+  const y = t.getUTCFullYear();
+  const w = Math.ceil(((t - Date.UTC(y, 0, 1)) / 864e5 + 1) / 7);
+  return { y, w, id: y + "-W" + String(w).padStart(2, "0") };
+}
+const now = new Date();
+const dow = (now.getDay() + 6) % 7; // 0 = Montag
+const WEEK = isoWeek(now);
+const monday = new Date(now); monday.setDate(now.getDate() - dow);
+const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
+const lastWeek = isoWeek(new Date(now.getTime() - 7 * 864e5)).id;
+const ROUNDS = [
+  { key: "mo", rid: WEEK.id + "-mo", title: "Montag-Runde", target: 3, from: 0, color: "var(--rot)" },
+  { key: "mi", rid: WEEK.id + "-mi", title: "Mittwoch-Runde", target: 2, from: 2, color: "var(--blau)" }
 ];
-const MEALS = [["frueh", "Frühstück"], ["mittag", "Mittagessen"], ["abend", "Abendessen"]];
-const IDEAS = {
-  frueh: [["Müsli mit Obst", "🥣"], ["Rührei mit Brot", "🍳"], ["Pfannkuchen", "🥞"], ["Joghurt mit Beeren", "🍓"], ["Haferbrei mit Banane", "🍌"], ["Brötchen mit Käse", "🥐"], ["Obstsalat", "🍎"], ["Waffeln", "🧇"]],
-  mittag: [["Spaghetti Bolognese", "🍝"], ["Gemüsesuppe", "🥕"], ["Kartoffeln mit Quark", "🥔"], ["Fischstäbchen mit Kartoffelbrei", "🐟"], ["Linsen-Eintopf", "🍲"], ["Hähnchen mit Reis", "🍗"], ["Pizza selbst belegt", "🍕"], ["Nudelauflauf", "🧀"], ["Milchreis mit Apfelmus", "🍚"], ["Gemüse-Lasagne", "🥦"]],
-  abend: [["Brotzeit mit Gemüsesticks", "🥒"], ["Tomatensuppe mit Brot", "🍅"], ["Wraps zum Selberfüllen", "🌯"], ["Toast Hawaii", "🍍"], ["Ofengemüse mit Feta", "🫑"], ["Kartoffelpuffer", "🥔"], ["Quesadillas", "🫓"], ["Burger selbst gebaut", "🍔"]]
-};
-const STICKERS = "🍝 🍕 🍔 🌭 🌮 🌯 🥪 🥗 🍲 🍜 🍛 🍚 🍣 🥟 🍗 🍖 🐟 🍳 🥞 🧇 🥐 🥨 🍞 🧀 🥚 🥔 🥕 🌽 🥦 🥒 🍅 🫑 🍄 🍎 🍌 🍓 🍇 🍉 🍍 🥝 🍒 🫐 🍑 🥥 🥣 🍦 🍪 🧁 🎂 🍫 🍩 🥛 🧃 🍯 ⭐ ❤️ 🌈 🎉".split(" ");
-const W = 1000, H = 500;
 
-const state = { meals: {}, shop: [], drawings: {} };
-let db = null;
-let pen = { color: CRAYONS[0][2], name: CRAYONS[0][1] };
-const pads = {};
+// ================= Zustand =================
+const state = { rounds: {}, custom: {}, persons: 4 };
+let db = null, sample = null;
+let activeRound = dow >= 2 ? "mi" : "mo";
+let dragging = false, renderQueued = false;
 
-// ---------- Titel mit bunten Buchstaben ----------
+const pool = () => RECIPES.concat(Object.values(state.custom));
+const byId = id => pool().find(r => r.id === id);
+const roundData = rid => state.rounds[rid] || { votes: {}, have: {} };
+const chosenIn = rid => Object.entries(roundData(rid).votes || {}).filter(([, v]) => v === "y").map(([k]) => k).filter(byId);
+const colorOf = id => { let h = 0; for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return COLORS[h % COLORS.length]; };
+function hashKey(s) { let h = 2166136261; for (const ch of s) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619) >>> 0; } return "k" + h.toString(36); }
+function seeded(seed) { let a = 0; for (const ch of seed) a = (a * 31 + ch.charCodeAt(0)) | 0; return () => { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+
+function deckFor(round) {
+  const d = roundData(round.rid);
+  const votes = d.votes || {};
+  const blocked = new Set();
+  ROUNDS.forEach(r => { if (r.rid !== round.rid) chosenIn(r.rid).forEach(id => blocked.add(id)); });
+  ["-mo", "-mi"].forEach(s => chosenIn(lastWeek + s).forEach(id => blocked.add(id)));
+  const rnd = seeded(round.rid);
+  const builtIn = RECIPES.map(r => [rnd(), r]).sort((a, b) => a[0] - b[0]).map(x => x[1]);
+  const fresh = Object.values(state.custom).sort((a, b) => (b.at || 0) - (a.at || 0));
+  return fresh.concat(builtIn).filter(r => !votes[r.id] && !blocked.has(r.id));
+}
+
+// ================= Speichern =================
+function localLoad() { try { const raw = localStorage.getItem("mampfplan2"); if (raw) Object.assign(state, JSON.parse(raw)); } catch (e) {} }
+function localSave() { try { localStorage.setItem("mampfplan2", JSON.stringify(state)); } catch (e) {} }
+function merge(target, patch) {
+  for (const [k, v] of Object.entries(patch)) {
+    if (v && typeof v === "object" && !Array.isArray(v)) { target[k] = merge(target[k] && typeof target[k] === "object" ? target[k] : {}, v); }
+    else target[k] = v;
+  }
+  return target;
+}
+const chains = {};
+function writeDoc(path, fn) {
+  chains[path] = (chains[path] || Promise.resolve()).then(fn).catch(() => toast("Hoppla, Speichern hat nicht geklappt. Bitte nochmal tippen."));
+}
+const known = new Set();
+function patchRound(rid, patch) {
+  const existed = !!state.rounds[rid] && (known.has(rid) || !db);
+  state.rounds[rid] = merge(state.rounds[rid] || { votes: {}, have: {} }, patch);
+  render();
+  if (!db) { localSave(); return; }
+  if (existed) writeDoc("rounds/" + rid, () => db.doc("rounds/" + rid).update(patch));
+  else { known.add(rid); const full = JSON.parse(JSON.stringify(state.rounds[rid])); writeDoc("rounds/" + rid, () => db.doc("rounds/" + rid).set(full)); }
+}
+function savePersons() {
+  render();
+  if (!db) { localSave(); return; }
+  const p = state.persons;
+  clearTimeout(savePersons.t);
+  savePersons.t = setTimeout(() => writeDoc("settings/family", () => db.doc("settings/family").set({ persons: p })), 500);
+}
+
+// ================= Mengen =================
+const frac = v => { const w = Math.floor(v), r = v - w; const f = r >= .75 ? "¾" : r >= .5 ? "½" : r >= .25 ? "¼" : ""; return (w || !f ? String(w) : "") + f; };
+function fmtQty(q, u) {
+  if (!q) return "etwas";
+  if (u === "g" || u === "ml") {
+    let v = q >= 300 ? Math.round(q / 50) * 50 : Math.max(10, Math.round(q / 10) * 10);
+    if (v >= 1000) return String(Math.round(v / 100) / 10).replace(".", ",") + (u === "g" ? " kg" : " l");
+    return v + " " + u;
+  }
+  const v = Math.max(.5, Math.ceil(q * 2) / 2);
+  return frac(v) + (u ? " " + u : "");
+}
+const scale = () => state.persons / 4;
+const buyQty = (q, u) => (["Stk", "Dose", "Pkg", "Glas", "Topf", "Bund"].includes(u) ? Math.ceil(q * scale() - 0.15) || (q ? 1 : 0) : q * scale());
+
+function shoppingList(ids) {
+  const map = new Map();
+  ids.forEach(id => {
+    const r = byId(id); if (!r) return;
+    r.ing.forEach(([n, q, u]) => {
+      const key = n + "|" + u;
+      const e = map.get(key) || { n, u, q: 0, from: [] };
+      e.q += q; if (!e.from.includes(r.name)) e.from.push(r.name);
+      map.set(key, e);
+    });
+  });
+  const all = [...map.values()].map(e => ({ ...e, key: hashKey(e.n + "|" + e.u), basic: BASICS.has(e.n) }));
+  all.sort((a, b) => a.n.localeCompare(b.n, "de"));
+  return { buy: all.filter(e => !e.basic), basics: all.filter(e => e.basic) };
+}
+const gurkerlUrl = n => "https://www.gurkerl.at/suche?q=" + encodeURIComponent(n.replace(/\s*\(.*?\)\s*/g, " ").trim());
+
+// ================= Anzeige =================
+const $ = id => document.getElementById(id);
+function el(tag, props, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(props || {})) {
+    if (k === "style") for (const [sk, sv] of Object.entries(v)) e.style.setProperty(sk, sv);
+    else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+    else if (k === "text") e.textContent = v;
+    else if (v !== false && v != null) e.setAttribute(k, v === true ? "" : v);
+  }
+  kids.flat().forEach(k => k != null && e.append(k));
+  return e;
+}
+
 (function title() {
-  const t = document.getElementById("title");
+  const t = $("title");
   const cols = ["#e5383b", "#f77f00", "#2a9d3f", "#2fa4e7", "#8e44ad", "#ff5fa2", "#3a5bd9"];
   let i = 0;
   "Unser Mampf-Plan".split(" ").forEach((word, wi) => {
     if (wi) t.append(" ");
-    const w = document.createElement("span"); w.className = "word"; t.append(w);
-    [...word].forEach(ch => { i++;
-    const s = document.createElement("span");
-    s.className = "l"; s.textContent = ch; s.setAttribute("aria-hidden", "true");
-    s.style.color = cols[i % cols.length];
-    s.style.setProperty("--r", ((i * 37) % 13 - 6) + "deg");
-    s.style.setProperty("--y", ((i * 53) % 7 - 3) + "px");
-    s.style.setProperty("--i", i);
-    w.append(s);
-  }); });
+    const w = el("span", { class: "word" }); t.append(w);
+    [...word].forEach(ch => {
+      i++;
+      w.append(el("span", { class: "l", "aria-hidden": "true", text: ch, style: { color: cols[i % cols.length], "--r": ((i * 37) % 13 - 6) + "deg", "--y": ((i * 53) % 7 - 3) + "px" } }));
+    });
+  });
+  const f = d => d.toLocaleDateString("de-AT", { day: "numeric", month: "long" });
+  $("weekLabel").textContent = "Woche " + WEEK.w + " · " + f(monday) + " bis " + f(sunday);
 })();
 
-// ---------- Stifte ----------
-function crayonSVG(color) {
-  return `<svg viewBox="0 0 34 92" aria-hidden="true">
-    <path d="M10 22 L17 3 L24 22 Z" fill="${color}"/>
-    <rect x="7" y="21" width="20" height="68" rx="3" fill="${color}"/>
-    <rect x="7" y="34" width="20" height="38" fill="#fff" opacity=".35"/>
-    <path d="M7 34 L27 34 M7 72 L27 72" stroke="#2b2b2b" stroke-width="1.6" opacity=".55"/>
-    <path d="M11 44 q6 -4 12 0 M11 52 q6 4 12 0 M11 60 q6 -4 12 0" stroke="#2b2b2b" stroke-width="1.4" fill="none" opacity=".45"/>
-  </svg>`;
-}
-function renderCrayons() {
-  const box = document.getElementById("crayons");
-  CRAYONS.forEach(([id, name, color], i) => {
-    const b = document.createElement("button");
-    b.type = "button"; b.className = "crayon"; b.id = "crayon-" + id;
-    b.style.setProperty("--c", color);
-    b.style.setProperty("--tilt", ((i * 29) % 9 - 4) + "deg");
-    b.setAttribute("aria-label", name);
-    b.setAttribute("aria-pressed", i === 0 ? "true" : "false");
-    b.innerHTML = crayonSVG(color);
-    b.addEventListener("click", () => {
-      pen = { color, name };
-      box.querySelectorAll(".crayon").forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
-      showPicked();
-    });
-    box.append(b);
-  });
-  showPicked();
-}
-function showPicked() {
-  const p = document.getElementById("picked");
-  p.style.setProperty("--pick", pen.color);
-  p.innerHTML = "";
-  p.append("Du malst mit ");
-  const b = document.createElement("b"); b.textContent = pen.name; p.append(b, "!");
+function render() {
+  if (dragging) { renderQueued = true; return; }
+  $("pCount").textContent = state.persons;
+  renderStrip(); renderTabs(); renderRound();
 }
 
-// ---------- Wachsmal-Pinsel ----------
-const patterns = {};
-function crayonPattern(ctx, color) {
-  if (patterns[color]) return patterns[color];
-  const c = document.createElement("canvas"); c.width = c.height = 48;
-  const x = c.getContext("2d");
-  x.fillStyle = color; x.fillRect(0, 0, 48, 48);
-  const img = x.getImageData(0, 0, 48, 48);
-  for (let i = 3; i < img.data.length; i += 4) {
-    const r = Math.random();
-    img.data[i] = r < 0.22 ? 0 : r < 0.4 ? 150 : 235;
+function renderStrip() {
+  const s = $("strip"); s.innerHTML = "";
+  ROUNDS.forEach(round => {
+    const ids = chosenIn(round.rid);
+    for (let i = 0; i < round.target; i++) {
+      const r = byId(ids[i]);
+      if (r) s.append(el("button", { type: "button", class: "slot full", style: { "--c": colorOf(r.id) }, onclick: () => openRecipe(r.id), "aria-label": "Rezept: " + r.name },
+        el("span", { class: "em", text: r.emoji }), el("span", { class: "nm", text: r.name })));
+      else s.append(el("div", { class: "slot" }, el("span", { class: "em", text: "?" }), el("span", { class: "nm", text: "noch offen" })));
+    }
+  });
+}
+
+function renderTabs() {
+  const t = $("tabs"); t.innerHTML = "";
+  ROUNDS.forEach(round => {
+    const n = chosenIn(round.rid).length;
+    const locked = dow < round.from;
+    const sub = locked ? "ab Mittwoch" : n >= round.target ? "fertig! Einkaufsliste bereit" : n + " von " + round.target + " Gerichten";
+    t.append(el("button", { type: "button", role: "tab", class: "tab", id: "tab-" + round.key, "aria-selected": String(activeRound === round.key), style: { "--c": round.color },
+      onclick: () => { activeRound = round.key; render(); } },
+      el("span", { class: "t1", text: round.title }), el("span", { class: "t2", text: sub })));
+  });
+}
+
+function renderRound() {
+  const main = $("round"); main.innerHTML = "";
+  const round = ROUNDS.find(r => r.key === activeRound);
+  if (dow < round.from) {
+    main.append(el("div", { class: "locked" }, el("div", { class: "big", text: "🔒" }), el("h3", { text: "Ab Mittwoch gibt's neue Karten!" }),
+      el("p", { text: "Dann sucht ihr 2 weitere Gerichte aus und bekommt eine zweite Einkaufsliste." })));
+    return;
   }
-  x.putImageData(img, 0, 0);
-  return (patterns[color] = ctx.createPattern(c, "repeat"));
+  const chosen = chosenIn(round.rid);
+  if (chosen.length >= round.target) renderDone(main, round, chosen.slice(0, round.target));
+  else renderSwipe(main, round, chosen);
 }
-function drawStroke(ctx, s, scale) {
-  const p = s.p;
-  if (!p || p.length < 2) return;
-  ctx.save();
-  ctx.lineCap = "round"; ctx.lineJoin = "round";
-  ctx.strokeStyle = crayonPattern(ctx, s.c);
-  ctx.lineWidth = (s.w || 9) * scale;
-  ctx.beginPath();
-  ctx.moveTo(p[0] * scale, p[1] * scale);
-  if (p.length === 2) ctx.lineTo(p[0] * scale + .1, p[1] * scale + .1);
-  for (let i = 2; i < p.length; i += 2) ctx.lineTo(p[i] * scale, p[i + 1] * scale);
-  ctx.stroke();
-  ctx.restore();
-}
-const validColor = c => typeof c === "string" && /^#[0-9a-f]{6}$/i.test(c);
 
-function setupPad(day, canvas, hint) {
-  const pad = { canvas, hint, ctx: canvas.getContext("2d"), scale: 1, live: null };
-  pads[day] = pad;
-  const resize = () => {
-    const r = canvas.getBoundingClientRect();
-    if (!r.width) return;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = Math.round(r.width * dpr); canvas.height = Math.round(r.height * dpr);
-    pad.scale = canvas.width / W;
-    redraw(day);
+// ---------- Wischen ----------
+function heartsSVG(on) {
+  return `<svg class="heart${on ? " on" : ""}" viewBox="0 0 30 28" aria-hidden="true"><path d="M15 25 C6 18 2 13 3 8 C4 3 10 1 15 7 C20 1 26 3 27 8 C28 13 24 18 15 25 Z"/></svg>`;
+}
+function renderSwipe(main, round, chosen) {
+  const prog = el("div", { class: "progress" });
+  const hearts = el("span", { class: "hearts" });
+  let h = ""; for (let i = 0; i < round.target; i++) h += heartsSVG(i < chosen.length);
+  hearts.innerHTML = h;
+  prog.append(hearts, el("span", { text: chosen.length + " von " + round.target + " ausgesucht. " + (round.target - chosen.length === 1 ? "Noch eins!" : "Wisch nach rechts, wenn's euch schmeckt.") }));
+  main.append(prog);
+
+  const deck = deckFor(round);
+  if (!deck.length) {
+    const box = el("div", { class: "empty-deck" }, el("div", { class: "big", text: "🃏" }), el("h3", { text: "Alle Karten sind durch!" }),
+      el("p", { text: "Ihr könnt die Nein-Karten nochmal anschauen oder Claude um neue Ideen bitten." }));
+    const row = el("div", { class: "btn-row" }, el("button", { type: "button", class: "btn soft", text: "Nein-Karten nochmal zeigen", onclick: () => resetNo(round) }));
+    box.append(row); main.append(box);
+    main.append(aiRow(true));
+    return;
+  }
+  const stage = el("div", { class: "stage" });
+  deck.slice(0, 3).reverse().forEach((r, i, arr) => {
+    const depth = arr.length - 1 - i;
+    const card = cardEl(r, depth);
+    stage.append(card);
+    if (depth === 0) makeSwipeable(card, r, round);
+  });
+  main.append(stage);
+  const top = deck[0];
+  main.append(el("div", { class: "actions" },
+    el("button", { type: "button", class: "act no", "aria-label": "Nein danke: " + top.name, onclick: () => flyAndVote(stage.lastChild, top, round, "n") },
+      svgIcon("no")),
+    el("button", { type: "button", class: "act info", "aria-label": "Rezept ansehen: " + top.name, onclick: () => openRecipe(top.id) }, el("span", { text: "?" })),
+    el("button", { type: "button", class: "act yes", "aria-label": "Ja, das kochen wir: " + top.name, onclick: () => flyAndVote(stage.lastChild, top, round, "y") },
+      svgIcon("yes"))
+  ));
+  main.append(el("p", { class: "hint-row", text: "Nach rechts wischen heißt Ja, nach links Nein. Tippe auf die Karte für das Rezept. " + (deck.length > 1 ? "Noch " + deck.length + " Karten im Stapel." : "Das ist die letzte Karte.") }));
+  main.append(aiRow(false));
+}
+function svgIcon(kind) {
+  const s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  s.setAttribute("viewBox", "0 0 40 40"); s.setAttribute("aria-hidden", "true");
+  s.innerHTML = kind === "no"
+    ? '<path d="M10 10 L30 31 M30 9 L9 30" stroke="#e5383b" stroke-width="5" stroke-linecap="round" fill="none"/>'
+    : '<path d="M20 34 C9 26 4 20 5 13 C6 6 14 4 20 12 C26 4 34 6 35 13 C36 20 31 26 20 34 Z" fill="#2a9d3f"/>';
+  return s;
+}
+function cardEl(r, depth) {
+  const c = el("article", { class: "rcard" + (depth ? " back" + depth : ""), style: { "--c": colorOf(r.id) }, "aria-hidden": depth ? "true" : false },
+    el("div", { class: "stamp yes", text: "JA!" }), el("div", { class: "stamp no", text: "NÖ" }),
+    el("div", { class: "pic" }, el("div", { class: "blob" }), el("span", { class: "em", text: r.emoji })),
+    el("div", { class: "body" },
+      el("h3", { text: r.name }), el("p", { text: r.desc }),
+      el("button", { type: "button", class: "see", text: "Rezept und Zutaten ansehen", onclick: e => { e.stopPropagation(); openRecipe(r.id); } }),
+      el("div", { class: "chips" }, el("span", { class: "chip", text: "⏱ " + r.time + " Min." }), el("span", { class: "chip", text: r.ing.filter(i => !BASICS.has(i[0])).length + " Zutaten" }),
+        r.ai ? el("span", { class: "chip ai", text: "Idee von Claude" }) : null)));
+  return c;
+}
+function makeSwipeable(card, r, round) {
+  let sx = 0, sy = 0, dx = 0, dy = 0, id = null;
+  const yes = card.querySelector(".stamp.yes"), no = card.querySelector(".stamp.no");
+  card.addEventListener("pointerdown", e => {
+    id = e.pointerId; card.setPointerCapture(id); sx = e.clientX; sy = e.clientY; dx = dy = 0;
+    dragging = true; card.style.transition = "none"; card.style.cursor = "grabbing";
+  });
+  card.addEventListener("pointermove", e => {
+    if (e.pointerId !== id) return;
+    dx = e.clientX - sx; dy = e.clientY - sy;
+    card.style.transform = `translate(${dx}px, ${dy * .25}px) rotate(${dx / 14}deg)`;
+    yes.style.opacity = Math.max(0, Math.min(1, dx / 90));
+    no.style.opacity = Math.max(0, Math.min(1, -dx / 90));
+  });
+  const up = e => {
+    if (e.pointerId !== id) return;
+    id = null; dragging = false; card.style.cursor = "";
+    if (Math.abs(dx) > 100) { flyAndVote(card, r, round, dx > 0 ? "y" : "n"); return; }
+    card.style.transition = "transform .25s"; card.style.transform = ""; yes.style.opacity = no.style.opacity = 0;
+    if (Math.abs(dx) < 6 && Math.abs(dy) < 6) openRecipe(r.id);
+    if (renderQueued) { renderQueued = false; setTimeout(render, 260); }
   };
-  new ResizeObserver(resize).observe(canvas);
-  const pt = e => {
-    const r = canvas.getBoundingClientRect();
-    return [Math.round((e.clientX - r.left) / r.width * W), Math.round((e.clientY - r.top) / r.height * H)];
-  };
-  canvas.addEventListener("pointerdown", e => {
-    e.preventDefault();
-    canvas.setPointerCapture(e.pointerId);
-    pad.live = { c: pen.color, w: 10, p: pt(e) };
-    hint.hidden = true;
-    redraw(day);
+  card.addEventListener("pointerup", up);
+  card.addEventListener("pointercancel", up);
+}
+function flyAndVote(card, r, round, v) {
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const done = () => vote(round, r, v);
+  if (!card || reduce) { done(); return; }
+  dragging = true;
+  card.style.transition = "transform .32s ease-in, opacity .32s";
+  card.style.transform = `translate(${v === "y" ? 140 : -140}vw, 40px) rotate(${v === "y" ? 30 : -30}deg)`;
+  card.style.opacity = "0";
+  const st = card.querySelector(v === "y" ? ".stamp.yes" : ".stamp.no"); if (st) st.style.opacity = 1;
+  setTimeout(() => { dragging = false; renderQueued = false; done(); }, 300);
+}
+function vote(round, r, v) {
+  const before = chosenIn(round.rid).length;
+  patchRound(round.rid, { votes: { [r.id]: v } });
+  if (v === "y") {
+    const rect = $("strip").getBoundingClientRect();
+    burst(rect.left + rect.width / 2, rect.top + rect.height / 2 + window.scrollY * 0);
+    if (before + 1 >= round.target) { window.scrollTo({ top: 0, behavior: "smooth" }); setTimeout(() => burst(innerWidth / 2, 200), 250); }
+  }
+}
+function resetNo(round) {
+  const votes = roundData(round.rid).votes || {};
+  const patch = {};
+  Object.entries(votes).forEach(([k, v]) => { if (v === "n") patch[k] = ""; });
+  if (Object.keys(patch).length) patchRound(round.rid, { votes: patch });
+}
+
+// ---------- Fertig: Gerichte + Einkaufszettel ----------
+function renderDone(main, round, ids) {
+  main.append(el("div", { class: "done-head" }, el("h2", { text: "Juhu, ausgesucht!" }), el("p", { text: "Diese " + ids.length + " Gerichte gibt's. Unten steht alles, was ihr dafür einkaufen müsst." })));
+  const list = el("div", { class: "picked-list" });
+  ids.forEach(id => {
+    const r = byId(id);
+    list.append(el("div", { class: "pick", style: { "--c": colorOf(id) } },
+      el("span", { class: "em", text: r.emoji, "aria-hidden": "true" }), el("h3", { text: r.name }),
+      el("div", { class: "row" },
+        el("button", { type: "button", class: "open", text: "Rezept ansehen", onclick: () => openRecipe(id) }),
+        el("button", { type: "button", text: "Doch lieber was anderes", onclick: () => patchRound(round.rid, { votes: { [id]: "n" } }) }))));
   });
-  canvas.addEventListener("pointermove", e => {
-    if (!pad.live) return;
-    const [x, y] = pt(e), p = pad.live.p;
-    const lx = p[p.length - 2], ly = p[p.length - 1];
-    if (Math.abs(x - lx) + Math.abs(y - ly) < 6) return;
-    p.push(x, y);
-    pad.ctx.save();
-    pad.ctx.lineCap = "round"; pad.ctx.strokeStyle = crayonPattern(pad.ctx, pad.live.c);
-    pad.ctx.lineWidth = pad.live.w * pad.scale;
-    pad.ctx.beginPath(); pad.ctx.moveTo(lx * pad.scale, ly * pad.scale); pad.ctx.lineTo(x * pad.scale, y * pad.scale); pad.ctx.stroke();
-    pad.ctx.restore();
-  });
-  const end = () => {
-    if (!pad.live) return;
-    const s = pad.live; pad.live = null;
-    const strokes = (state.drawings[day] || []).concat([s]).slice(-80);
-    state.drawings[day] = strokes;
-    redraw(day);
-    saveDrawing(day);
-  };
-  canvas.addEventListener("pointerup", end);
-  canvas.addEventListener("pointercancel", end);
+  main.append(list);
+
+  const { buy, basics } = shoppingList(ids);
+  const have = roundData(round.rid).have || {};
+  const left = buy.filter(e => !have[e.key]).length;
+  const note = el("section", { class: "note", "aria-labelledby": "shopTitle" }, el("div", { class: "tape" }),
+    el("h2", { id: "shopTitle", text: "Einkaufszettel" }),
+    el("p", { class: "sub", text: left ? "Noch " + left + " von " + buy.length + " Sachen besorgen · für " + state.persons + " Personen" : "Alles erledigt. Guten Appetit!" }),
+    el("div", { class: "how" }, el("b", { text: "So bestellst du bei Gurkerl:" }),
+      el("ol", {}, el("li", { text: "Tippe bei einer Zutat auf „Gurkerl“. Die Suche öffnet sich in einem neuen Tab." }),
+        el("li", { text: "Leg das passende Produkt in deinen Gurkerl-Warenkorb." }),
+        el("li", { text: "Komm zurück und hak die Zutat ab. Am Ende bestellst du auf gurkerl.at." }))));
+  const copyStatus = el("span", { class: "copied", "aria-live": "polite" });
+  note.append(el("div", { class: "note-tools" },
+    el("a", { class: "gk", href: "https://www.gurkerl.at/", target: "_blank", rel: "noopener", text: "gurkerl.at öffnen" }),
+    el("button", { type: "button", class: "btn soft", text: "Liste kopieren", onclick: () => copyList(buy, have, copyStatus) }), copyStatus));
+  const ul = el("ul", { class: "shop" });
+  buy.forEach(e => ul.append(shopRow(round, e, have)));
+  note.append(ul);
+  if (basics.length) {
+    const ulb = el("ul", { class: "shop" });
+    basics.forEach(e => ulb.append(shopRow(round, e, have)));
+    note.append(el("details", { class: "basics" }, el("summary", { text: "Habt ihr wahrscheinlich daheim (" + basics.length + ")" }), ulb));
+  }
+  note.append(el("p", { class: "save-note", text: db ? "Alle, die diesen Plan offen haben, sehen dieselbe Liste." : "Gespeichert hier in diesem Browser." }));
+  main.append(note);
 }
-function redraw(day) {
-  const pad = pads[day]; if (!pad) return;
-  const { ctx, canvas, scale } = pad;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const strokes = state.drawings[day] || [];
-  strokes.forEach(s => { if (validColor(s.c) && Array.isArray(s.p)) drawStroke(ctx, s, scale); });
-  if (pad.live) drawStroke(ctx, pad.live, scale);
-  pad.hint.hidden = strokes.length > 0 || !!pad.live;
+function shopRow(round, e, have) {
+  const got = !!have[e.key];
+  const ck = el("button", { type: "button", class: "check", role: "checkbox", "aria-checked": String(got), "aria-label": e.n,
+    onclick: () => patchRound(round.rid, { have: { [e.key]: !got } }) });
+  ck.innerHTML = `<svg viewBox="0 0 28 28" aria-hidden="true"><path d="M3 4 C9 2 19 3 25 3 C26 10 26 18 25 25 C17 26 9 26 3 25 C2 17 2 9 3 4 Z" fill="#fff" stroke="currentColor" stroke-width="2.4"/>${got ? '<path d="M6 14 L12 21 L27 -1" fill="none" stroke="#2a9d3f" stroke-width="4" stroke-linecap="round"/>' : ""}</svg>`;
+  const amount = e.q ? fmtQty(buyQty(e.q, e.u), e.u) : "";
+  return el("li", { class: got ? "got" : "" }, ck,
+    el("span", { class: "item" }, e.n + " ", amount ? el("span", { class: "amt", text: amount }) : null,
+      el("span", { class: "for", text: "für " + e.from.join(", ") })),
+    el("a", { class: "gk", href: gurkerlUrl(e.n), target: "_blank", rel: "noopener", text: "Gurkerl", "aria-label": e.n + " auf Gurkerl suchen" }));
+}
+function copyList(buy, have, status) {
+  const text = "Einkaufszettel (" + state.persons + " Personen)\n" + buy.filter(e => !have[e.key]).map(e => "- " + e.n + (e.q ? " " + fmtQty(buyQty(e.q, e.u), e.u) : "")).join("\n");
+  const ok = () => { status.textContent = "Kopiert!"; setTimeout(() => status.textContent = "", 2500); };
+  try {
+    navigator.clipboard.writeText(text).then(ok, () => fallbackCopy(text, ok));
+  } catch (e) { fallbackCopy(text, ok); }
+}
+function fallbackCopy(text, ok) {
+  const ta = el("textarea", { style: { position: "fixed", opacity: "0" } }); ta.value = text; document.body.append(ta); ta.select();
+  try { document.execCommand("copy"); ok(); } catch (e) {}
+  ta.remove();
 }
 
-// ---------- Speichern: gemeinsam (db) oder nur hier (Browser) ----------
-function localLoad() { try { const raw = localStorage.getItem("mampfplan"); if (raw) Object.assign(state, JSON.parse(raw)); } catch (e) {} }
-function localSave() { try { localStorage.setItem("mampfplan", JSON.stringify(state)); } catch (e) {} }
-
-const timers = {}, chains = {};
-function queueWrite(path, makeData, delay) {
-  clearTimeout(timers[path]);
-  timers[path] = setTimeout(() => {
-    chains[path] = (chains[path] || Promise.resolve()).then(() => db.doc(path).set(makeData())).catch(() => {
-      document.getElementById("modeNote").textContent = "Hoppla, Speichern hat nicht geklappt. Bitte nochmal versuchen.";
-    });
-  }, delay);
+// ---------- Rezept-Fenster ----------
+const dlg = $("recipeDlg");
+function openRecipe(id) {
+  const r = byId(id); if (!r) return;
+  const sheet = $("sheet"); sheet.innerHTML = ""; sheet.style.setProperty("--c", colorOf(id));
+  const ing = el("ul");
+  r.ing.forEach(([n, q, u]) => ing.append(el("li", {}, n + " ", el("span", { text: q ? fmtQty(q * scale(), u) : "nach Geschmack" }))));
+  const steps = el("ol"); r.steps.forEach(s => steps.append(el("li", { text: s })));
+  sheet.append(
+    el("button", { type: "button", class: "close", "aria-label": "Schließen", text: "✗", onclick: () => dlg.close() }),
+    el("div", { class: "top" }, el("span", { class: "em", text: r.emoji, "aria-hidden": "true" }), el("div", {}, el("h2", { id: "dlgTitle", text: r.name }), el("div", { class: "chips" }, el("span", { class: "chip", text: "⏱ " + r.time + " Min." }), el("span", { class: "chip", text: "für " + state.persons + " Personen" })))),
+    el("p", { text: r.desc }),
+    el("h4", { text: "Zutaten" }), ing,
+    el("h4", { text: "So geht's" }), steps);
+  const round = ROUNDS.find(x => x.key === activeRound);
+  if (dow >= round.from && chosenIn(round.rid).length < round.target && !roundData(round.rid).votes?.[id]) {
+    sheet.append(el("div", { class: "sheet-actions" },
+      el("button", { type: "button", class: "btn", text: "Ja, das kochen wir!", onclick: () => { dlg.close(); vote(round, r, "y"); } }),
+      el("button", { type: "button", class: "btn soft", text: "Nein danke", onclick: () => { dlg.close(); vote(round, r, "n"); } })));
+  }
+  try { dlg.showModal(); } catch (e) { dlg.setAttribute("open", ""); }
 }
-function saveMeal(key) {
-  if (!db) { localSave(); return; }
-  queueWrite("meals/" + key, () => ({ dish: state.meals[key]?.dish || "", sticker: state.meals[key]?.sticker || "" }), 600);
-}
-function saveDrawing(day) {
-  if (!db) { localSave(); return; }
-  queueWrite("drawings/" + day, () => ({ strokes: state.drawings[day] || [] }), 250);
-}
+dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
 
-// ---------- Woche ----------
-const weekEl = document.getElementById("week");
-function renderWeek() {
-  const todayIdx = (new Date().getDay() + 6) % 7;
-  weekEl.innerHTML = "";
-  Object.keys(pads).forEach(k => delete pads[k]);
-  DAYS.forEach(([d, name, color, tilt], i) => {
-    const card = document.createElement("section");
-    card.className = "day scribble";
-    card.style.setProperty("--c", color);
-    card.style.setProperty("--tilt", tilt + "deg");
-    const h = document.createElement("h2");
-    h.textContent = name;
-    if (i === todayIdx) { const b = document.createElement("span"); b.className = "today-badge"; b.textContent = "heute!"; h.append(b); }
-    card.append(h);
-
-    MEALS.forEach(([m, label]) => {
-      const key = d + "-" + m;
-      const row = document.createElement("div"); row.className = "meal";
-      const nm = document.createElement("div"); nm.className = "meal-name"; nm.textContent = label;
-      const st = document.createElement("button");
-      st.type = "button"; st.className = "sticker"; st.id = "st-" + key;
-      st.style.setProperty("--st", ((key.length * 17) % 20 - 10) + "deg");
-      st.addEventListener("click", () => openKiste(key, name + ", " + label));
-      const inp = document.createElement("input");
-      inp.className = "dish"; inp.id = "in-" + key; inp.placeholder = "Was gibt's?";
-      inp.setAttribute("aria-label", name + " " + label);
-      inp.addEventListener("input", () => { state.meals[key] = { ...(state.meals[key] || {}), dish: inp.value }; saveMeal(key); });
-      const dice = document.createElement("button");
-      dice.type = "button"; dice.className = "dice"; dice.title = "Würfeln: Idee holen";
-      dice.setAttribute("aria-label", "Idee würfeln für " + name + " " + label);
-      dice.innerHTML = `<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M7 9 C14 6 27 6 33 8 C35 15 35 26 33 32 C25 35 14 34 8 33 C5 25 5 15 7 9 Z" fill="#fff" stroke="currentColor" stroke-width="3"/><circle cx="14" cy="14" r="3" fill="currentColor"/><circle cx="20" cy="20" r="3" fill="currentColor"/><circle cx="26" cy="26" r="3" fill="currentColor"/></svg>`;
-      dice.addEventListener("click", e => {
-        const cur = state.meals[key]?.dish;
-        const list = IDEAS[m].filter(x => x[0] !== cur);
-        const [dish, sticker] = list[Math.floor(Math.random() * list.length)];
-        state.meals[key] = { dish, sticker };
-        updateMeal(key); saveMeal(key);
-        dice.classList.remove("roll"); void dice.offsetWidth; dice.classList.add("roll");
-        burst(e.clientX, e.clientY);
-      });
-      row.append(nm, st, inp, dice);
-      card.append(row);
-      updateMeal(key);
-    });
-
-    const head = document.createElement("div"); head.className = "pad-head";
-    const pl = document.createElement("span"); pl.className = "pad-label"; pl.textContent = "Mal dein Lieblingsessen!";
-    const er = document.createElement("button"); er.type = "button"; er.className = "eraser"; er.textContent = "Radiergummi";
-    let sureTimer;
-    er.addEventListener("click", () => {
-      if (!er.classList.contains("sure")) {
-        er.classList.add("sure"); er.textContent = "Wirklich alles weg?";
-        sureTimer = setTimeout(() => { er.classList.remove("sure"); er.textContent = "Radiergummi"; }, 3000);
-        return;
-      }
-      clearTimeout(sureTimer);
-      er.classList.remove("sure"); er.textContent = "Radiergummi";
-      state.drawings[d] = []; redraw(d); saveDrawing(d);
-    });
-    head.append(pl, er);
-    const pad = document.createElement("div"); pad.className = "pad";
-    const cv = document.createElement("canvas"); cv.id = "pad-" + d;
-    cv.setAttribute("aria-label", "Malfläche für " + name);
-    const hint = document.createElement("div"); hint.className = "hint"; hint.textContent = "Stift aussuchen und hier malen";
-    pad.append(cv, hint);
-    card.append(head, pad);
-    weekEl.append(card);
-    setupPad(d, cv, hint);
-  });
+// ---------- Neue Ideen von Claude ----------
+let aiBusy = false, aiMsg = "";
+function aiRow(prominent) {
+  if (!sample) return null;
+  const status = el("div", { class: "ai-status", "aria-live": "polite", text: aiMsg });
+  const btn = el("button", { type: "button", class: "btn lila", text: aiBusy ? "Claude denkt nach…" : "Neue Ideen von Claude holen", disabled: aiBusy,
+    onclick: () => askClaude(btn, status) });
+  return el("div", { class: "ai-row" }, prominent ? null : el("div", { class: "hint-row", text: "Nichts dabei?" }), btn, status);
 }
-function updateMeal(key) {
-  const v = state.meals[key] || {};
-  const inp = document.getElementById("in-" + key);
-  if (inp && document.activeElement !== inp && inp.value !== (v.dish || "")) inp.value = v.dish || "";
-  const st = document.getElementById("st-" + key);
-  if (!st) return;
-  st.innerHTML = "";
-  const s = document.createElement("span");
-  if (v.sticker) { s.textContent = v.sticker; st.classList.add("has"); st.setAttribute("aria-label", "Sticker ändern"); }
-  else { s.textContent = "+"; s.className = "plus"; st.classList.remove("has"); st.setAttribute("aria-label", "Sticker aufkleben"); }
-  st.append(s);
+async function askClaude(btn, status) {
+  if (aiBusy) return;
+  aiBusy = true; btn.disabled = true; btn.textContent = "Claude denkt nach…"; aiMsg = "Das dauert meistens unter einer Minute."; status.textContent = aiMsg;
+  const names = pool().map(r => r.name).join(", ");
+  const prompt = `Du hilfst einer Familie in Österreich (Eltern mit Kindern) beim Wochen-Essensplan.
+Schlage 4 neue, alltagstaugliche, kinderfreundliche Hauptgerichte vor (höchstens 60 Minuten Arbeit, saisonal passend für ${now.toLocaleDateString("de-AT", { month: "long" })}).
+Die Gerichte dürfen NICHT in dieser Liste sein: ${names}.
+Verwende österreichische Zutatennamen (Erdäpfel, Paradeiser, Faschiertes, Schlagobers, Topfen) und Zutaten, die man im Supermarkt bekommt.
+Antworte NUR mit einem JSON-Array, ohne Text davor oder danach, in diesem Format:
+[{"name":"Name des Gerichts","emoji":"ein passendes Essens-Emoji","desc":"1-2 kurze, fröhliche Sätze","time":35,"ing":[["Zutat",500,"g"]],"steps":["Schritt 1","Schritt 2"]}]
+Regeln für "ing": Mengen für 4 Personen als Zahl. Einheit genau eine von: g, ml, Stk, EL, TL, Zehe, Bund, Dose, Pkg, Glas, Topf. Salz, Pfeffer und Öl mit Menge 0 und Einheit "". 4 bis 6 klare Schritte.`;
+  try {
+    const out = await sample.json(prompt, { modelTier: "default" });
+    const list = (Array.isArray(out) ? out : []).map(cleanRecipe).filter(Boolean).slice(0, 6);
+    if (!list.length) throw { code: "bad" };
+    for (const r of list) {
+      const docId = "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+      const rec = { ...r, id: "c-" + docId, ai: true, at: Date.now() };
+      state.custom[rec.id] = rec;
+      if (db) { const data = { name: rec.name, emoji: rec.emoji, desc: rec.desc, time: rec.time, ing: rec.ing.map(i => ({ n: i[0], q: i[1], u: i[2] })), steps: rec.steps, at: rec.at }; writeDoc("custom/" + docId, () => db.doc("custom/" + docId).set(data)); }
+    }
+    if (!db) localSave();
+    aiMsg = list.length + " neue Karten liegen jetzt oben im Stapel!";
+  } catch (e) {
+    aiMsg = e && e.code === "not_granted" ? "Ohne deine Erlaubnis kann Claude keine Ideen schicken. Die Karten im Stapel gehen natürlich trotzdem."
+      : e && e.code === "rate_limited" ? "Claude braucht kurz Pause. Probier es in ein paar Minuten nochmal."
+      : "Das hat diesmal nicht geklappt. Probier es gleich nochmal.";
+  }
+  aiBusy = false;
+  render();
+}
+function cleanRecipe(x) {
+  if (!x || typeof x !== "object") return null;
+  const str = (v, n) => typeof v === "string" ? v.trim().slice(0, n) : "";
+  const name = str(x.name, 80); if (!name) return null;
+  const ing = (Array.isArray(x.ing) ? x.ing : []).map(i => Array.isArray(i) ? i : [i && i.n, i && i.q, i && i.u])
+    .map(([n, q, u]) => [str(n, 50), Math.max(0, Math.min(5000, Number(q) || 0)), UNITS.includes(u) ? u : ""]).filter(i => i[0]).slice(0, 20);
+  const steps = (Array.isArray(x.steps) ? x.steps : []).map(s => str(s, 400)).filter(Boolean).slice(0, 8);
+  if (ing.length < 2 || !steps.length) return null;
+  return { name, emoji: str(x.emoji, 8) || "🍽️", desc: str(x.desc, 220), time: Math.max(5, Math.min(240, Math.round(Number(x.time) || 30))), ing, steps };
 }
 
-// ---------- Sticker-Kiste ----------
-const kiste = document.getElementById("kiste");
-let kisteKey = null;
-(function fillKiste() {
-  const g = document.getElementById("stickerGrid");
-  STICKERS.forEach(s => {
-    const b = document.createElement("button");
-    b.type = "button"; b.textContent = s; b.setAttribute("aria-label", "Sticker " + s);
-    b.addEventListener("click", e => { setSticker(s); burst(e.clientX, e.clientY); kiste.close(); });
-    g.append(b);
-  });
-})();
-function openKiste(key, label) {
-  kisteKey = key;
-  document.getElementById("kisteFor").textContent = "Für " + label + ". Such dir einen aus!";
-  try { kiste.showModal(); } catch (e) { kiste.setAttribute("open", ""); }
-}
-function setSticker(s) {
-  if (!kisteKey) return;
-  state.meals[kisteKey] = { ...(state.meals[kisteKey] || {}), sticker: s };
-  updateMeal(kisteKey); saveMeal(kisteKey);
-}
-document.getElementById("kNone").addEventListener("click", () => { setSticker(""); kiste.close(); });
-document.getElementById("kClose").addEventListener("click", () => kiste.close());
-kiste.addEventListener("click", e => { if (e.target === kiste) kiste.close(); });
-
-// ---------- Konfetti ----------
+// ---------- Kleinkram ----------
 function burst(x, y) {
-  const bits = ["★", "♥", "✿", "●", "✦", "~"];
-  const cols = CRAYONS.map(c => c[2]);
-  for (let i = 0; i < 12; i++) {
-    const s = document.createElement("span");
-    s.className = "burst"; s.textContent = bits[i % bits.length];
-    s.style.left = x + "px"; s.style.top = y + "px"; s.style.color = cols[(i * 3) % cols.length];
-    const a = Math.random() * Math.PI * 2, r = 50 + Math.random() * 70;
-    s.style.setProperty("--dx", Math.cos(a) * r + "px"); s.style.setProperty("--dy", Math.sin(a) * r + "px");
-    s.style.setProperty("--rot", (Math.random() * 360 - 180) + "deg");
-    document.body.append(s);
-    setTimeout(() => s.remove(), 1000);
+  const bits = ["★", "♥", "✿", "●", "✦"];
+  const cols = ["#e5383b", "#f77f00", "#f9c22e", "#2a9d3f", "#2fa4e7", "#8e44ad", "#ff5fa2"];
+  for (let i = 0; i < 14; i++) {
+    const a = Math.random() * Math.PI * 2, r = 50 + Math.random() * 90;
+    const s = el("span", { class: "burst", text: bits[i % bits.length], style: { left: x + "px", top: y + "px", color: cols[i % cols.length], "--dx": Math.cos(a) * r + "px", "--dy": Math.sin(a) * r + "px", "--rot": (Math.random() * 360 - 180) + "deg" } });
+    document.body.append(s); setTimeout(() => s.remove(), 1100);
   }
 }
+function toast(msg) { aiMsg = msg; const s = document.querySelector(".ai-status"); if (s) s.textContent = msg; }
 
-// ---------- Einkaufszettel ----------
-const shopEl = document.getElementById("shop");
-function renderShop() {
-  shopEl.innerHTML = "";
-  if (!state.shop.length) {
-    const li = document.createElement("li"); li.className = "empty"; li.textContent = "Noch leer. Schreib oben rein!";
-    shopEl.append(li); return;
-  }
-  [...state.shop].sort((a, b) => (a.done - b.done) || ((a.at || 0) - (b.at || 0))).forEach(item => {
-    const li = document.createElement("li"); if (item.done) li.className = "done";
-    const ck = document.createElement("button");
-    ck.type = "button"; ck.className = "check";
-    ck.setAttribute("role", "checkbox"); ck.setAttribute("aria-checked", item.done ? "true" : "false");
-    ck.setAttribute("aria-label", String(item.text || ""));
-    ck.innerHTML = `<svg viewBox="0 0 26 26" aria-hidden="true"><path d="M3 4 C9 2 18 3 23 3 C24 10 24 17 23 23 C16 24 9 24 3 23 C2 16 2 9 3 4 Z" fill="none" stroke="currentColor" stroke-width="2.4"/>${item.done ? '<path d="M6 13 L11 19 L25 -2" fill="none" stroke="#2a9d3f" stroke-width="4" stroke-linecap="round"/>' : ""}</svg>`;
-    ck.addEventListener("click", () => toggleItem(item));
-    const sp = document.createElement("span"); sp.textContent = String(item.text || "");
-    const del = document.createElement("button");
-    del.type = "button"; del.className = "del"; del.textContent = "✗";
-    del.setAttribute("aria-label", "Wegradieren: " + String(item.text || ""));
-    del.addEventListener("click", () => removeItem(item));
-    li.append(ck, sp, del); shopEl.append(li);
-  });
-}
-async function addItem(text) {
-  if (!db) { state.shop.push({ id: String(Date.now()), text, done: false, at: Date.now() }); localSave(); renderShop(); return; }
-  try { await db.collection("shop").add({ text, done: false, at: Date.now() }); } catch (e) {}
-}
-async function toggleItem(item) {
-  if (!db) { item.done = !item.done; localSave(); renderShop(); return; }
-  try { await db.doc("shop/" + item.id).update({ done: !item.done }); } catch (e) {}
-}
-async function removeItem(item) {
-  if (!db) { state.shop = state.shop.filter(i => i !== item); localSave(); renderShop(); return; }
-  try { await db.doc("shop/" + item.id).delete(); } catch (e) {}
-}
-document.getElementById("addForm").addEventListener("submit", e => {
-  e.preventDefault();
-  const inp = document.getElementById("addInput");
-  const text = inp.value.trim(); if (!text) return;
-  inp.value = ""; addItem(text);
-});
-document.getElementById("clearDone").addEventListener("click", async () => {
-  if (!db) { state.shop = state.shop.filter(i => !i.done); localSave(); renderShop(); return; }
-  for (const item of state.shop.filter(i => i.done)) { try { await db.doc("shop/" + item.id).delete(); } catch (e) {} }
+$("pMinus").addEventListener("click", () => { if (state.persons > 1) { state.persons--; savePersons(); } });
+$("pPlus").addEventListener("click", () => { if (state.persons < 12) { state.persons++; savePersons(); } });
+document.addEventListener("keydown", e => {
+  if (dlg.open || /INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
+  if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+  const btn = document.querySelector(e.key === "ArrowRight" ? ".act.yes" : ".act.no");
+  if (btn) { e.preventDefault(); btn.click(); }
 });
 
-// ---------- Start ----------
+// ================= Start =================
 localLoad();
-renderCrayons();
-renderWeek();
-renderShop();
-document.getElementById("modeNote").textContent = "Gespeichert hier in diesem Browser.";
+render();
 
 (async () => {
   if (!window.claude || !window.claude.use) return;
-  const shared = await window.claude.use("db");
+  const [shared, s] = await Promise.all([window.claude.use("db"), window.claude.use("sample")]);
+  if (s) { sample = s; render(); }
   if (!shared) return;
   db = shared;
-  state.meals = {}; state.shop = []; state.drawings = {};
-  renderWeek(); renderShop();
-  document.getElementById("modeNote").textContent = "Die ganze Familie sieht denselben Plan.";
-  db.collection("meals").onSnapshot(snap => {
-    snap.docs.forEach(doc => {
-      const v = doc.data() || {};
-      state.meals[doc.id] = { dish: String(v.dish || ""), sticker: String(v.sticker || "").slice(0, 8) };
-      updateMeal(doc.id);
-    });
+  state.rounds = {}; state.custom = {};
+  render();
+  db.collection("rounds").onSnapshot(snap => {
+    const next = {};
+    snap.docs.forEach(d => { known.add(d.id); const v = d.data() || {}; next[d.id] = { votes: { ...(v.votes || {}) }, have: { ...(v.have || {}) } }; });
+    state.rounds = next; render();
   });
-  db.collection("drawings").onSnapshot(snap => {
-    snap.docs.forEach(doc => {
-      const v = doc.data() || {};
-      state.drawings[doc.id] = Array.isArray(v.strokes) ? v.strokes : [];
-      if (!pads[doc.id] || !pads[doc.id].live) redraw(doc.id);
+  db.collection("custom").onSnapshot(snap => {
+    const next = {};
+    snap.docs.forEach(d => {
+      const v = d.data() || {};
+      const r = cleanRecipe({ ...v, ing: (v.ing || []).map(i => [i.n, i.q, i.u]) });
+      if (r) next["c-" + d.id] = { ...r, id: "c-" + d.id, ai: true, at: Number(v.at) || 0 };
     });
+    state.custom = next; render();
   });
-  db.collection("shop").onSnapshot(snap => {
-    state.shop = snap.docs.map(d => ({ id: d.id, ...(d.data() || {}) }));
-    renderShop();
+  db.doc("settings/family").onSnapshot(d => {
+    const p = Number((d.data() || {}).persons);
+    if (p >= 1 && p <= 12 && p !== state.persons) { state.persons = p; render(); }
   });
 })();
 </script>
