@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Mampf-Plan</title>
+<title>Essensplan</title>
 <meta name="theme-color" content="#2f7a4d">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Mampf-Plan">
+<meta name="apple-mobile-web-app-title" content="Essensplan">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
@@ -195,6 +195,14 @@ details.basics summary { cursor: pointer; font-weight: 600; color: var(--muted);
 .art.noimg .cap { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: .02em; background: var(--surface); padding: 2px 10px; border-radius: 999px; }
 .pick .art.noimg .em, .slot .art.noimg .em { font-size: 36px; }
 .pick .art.noimg .cap, .slot .art.noimg .cap { display: none; }
+.info { margin-top: 36px; }
+.info h2 { font-size: 22px; margin-bottom: 12px; }
+.info ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+.info li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 10px; align-items: start; }
+.info li .ic { font-size: 20px; line-height: 1.3; }
+.info li b { display: block; }
+.info li span.t { color: var(--muted); font-size: 15px; }
+.info a { color: var(--accent); font-weight: 700; }
 .credit { margin-top: 40px; font-size: 13px; color: var(--muted); text-align: center; }
 .credit a { color: inherit; }
 .quick { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--muted); margin: -4px 0 14px; cursor: pointer; }
@@ -230,7 +238,7 @@ ol.steps li::before { content: counter(s); width: 26px; height: 26px; border-rad
 <div class="wrap" lang="de">
   <header>
     <div>
-      <div class="brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/></svg>Mampf-Plan</div>
+      <div class="brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/></svg>Essensplan</div>
       <h1 id="weekTitle">Diese Woche</h1>
       <p class="dates" id="dates"></p>
     </div>
@@ -249,6 +257,7 @@ ol.steps li::before { content: counter(s); width: 26px; height: 26px; border-rad
 
   <div class="seg" role="tablist" id="tabs" aria-label="Einkaufsrunde"></div>
   <main id="round"></main>
+  <section class="panel info" id="info" aria-labelledby="infoHead"></section>
   <p class="credit">Fotos und Rezeptideen: <a href="https://www.themealdb.com" target="_blank" rel="noopener">TheMealDB</a>, BBC Good Food, <a href="https://www.jamieoliver.com" target="_blank" rel="noopener">Jamie Oliver</a> und <a href="https://ottolenghi.co.uk" target="_blank" rel="noopener">Yotam Ottolenghi</a>. Alle Rezepte für 4 Personen auf Deutsch übersetzt und angepasst.</p>
 </div>
 
@@ -804,7 +813,7 @@ function renderDone(main, round, ids) {
     el("div", { class: "meter" }, el("i", { style: { width: (buy.length ? got / buy.length * 100 : 0) + "%" } })),
     el("div", { class: "how" }, el("b", { text: "Bei Gurkerl bestellen" }),
       el("span", { class: "n", text: "1" }), el("span", { text: "Auf „Nächste Zutat“ tippen. Gurkerl sucht sie, und sie wird hier abgehakt." }),
-      el("span", { class: "n", text: "2" }), el("span", { text: "Bei Gurkerl ein Produkt in den Warenkorb legen und zurück zum Mampf-Plan wechseln." }),
+      el("span", { class: "n", text: "2" }), el("span", { text: "Bei Gurkerl ein Produkt in den Warenkorb legen und zurück zum Essensplan wechseln." }),
       el("span", { class: "n", text: "3" }), el("span", { text: "Wiederholen, bis alles abgehakt ist. Dann bei Gurkerl bestellen." })));
   const next = AISLE_ORDER.flatMap(a => buy.filter(e => e.aisle === a)).find(e => !have[e.key]);
   const copyStatus = el("span", { class: "copied", "aria-live": "polite" });
@@ -935,10 +944,27 @@ document.addEventListener("keydown", e => {
   if (btn) { e.preventDefault(); btn.click(); }
 });
 
+// ================= So läuft eure Woche =================
+const APP_URL = "https://aatrmntn.github.io/home/";
+const FAMILY_URL = "https://claude.ai/artifact/LEyzLGHxNzqZzrUtw5RTAp";
+function renderInfo() {
+  const inClaude = !!(window.claude && window.claude.use);
+  const item = (ic, title, ...txt) => el("li", {}, el("span", { class: "ic", text: ic, "aria-hidden": "true" }), el("div", {}, el("b", { text: title }), el("span", { class: "t" }, ...txt)));
+  const box = $("info"); box.innerHTML = "";
+  box.append(el("h2", { id: "infoHead", text: "So läuft eure Woche" }), el("ul", {},
+    item("✉️", "Erinnerung per E-Mail", "Jeden Montag um 10:00 und Donnerstag um 14:00 kommt eine E-Mail mit Vorschlägen und dem Link zu dieser App."),
+    item("🍽️", "Montag 3 Gerichte, Donnerstag 2 Gerichte", "Wische nach rechts für „Ja“, nach links für „Nein“. Beide Runden kannst du jederzeit planen."),
+    item("🛒", "Bei Gurkerl bestellen", "In der Einkaufsliste auf „Nächste Zutat“ tippen. Gurkerl sucht sie, du legst sie in den Warenkorb. Zum Schluss bei Gurkerl bestellen."),
+    inClaude
+      ? item("📱", "Als App aufs Handy", el("a", { href: APP_URL, target: "_blank", rel: "noopener", text: "Essensplan-App öffnen" }), ", dann „Zum Home-Bildschirm“ wählen. In der App wird nur am eigenen Handy gespeichert.")
+      : item("👨‍👩‍👧", "Mit der Familie abstimmen", "Diese App speichert nur auf deinem Handy. Wenn alle mitwählen sollen, nutzt die ", el("a", { href: FAMILY_URL, target: "_blank", rel: "noopener", text: "gemeinsame Seite" }), ". Dort sehen alle dieselbe Auswahl und Einkaufsliste.")));
+}
+
 // ================= Start =================
 if ("serviceWorker" in navigator && location.protocol === "https:" && !window.claude) navigator.serviceWorker.register("sw.js").catch(() => {});
 localLoad();
 render();
+renderInfo();
 (async () => {
   if (!window.claude || !window.claude.use) return;
   const [shared, s] = await Promise.all([window.claude.use("db"), window.claude.use("sample")]);

@@ -1,4 +1,4 @@
-# Mampf-Plan
+# Essensplan
 
 Familien-Essensplan fürs Handy: Gerichte aussuchen, Einkaufsliste bekommen, Zutat für Zutat bei Gurkerl suchen.
 

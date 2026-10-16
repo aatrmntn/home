@@ -1,6 +1,6 @@
 {
-  "name": "Mampf-Plan",
-  "short_name": "Mampf-Plan",
+  "name": "Essensplan",
+  "short_name": "Essensplan",
   "description": "Gerichte für die Woche aussuchen, Einkaufsliste machen und bei Gurkerl bestellen.",
   "lang": "de-AT",
   "start_url": "./",
