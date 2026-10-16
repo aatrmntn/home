@@ -3,13 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-</head>
-<body>
 <title>Mampf-Plan</title>
+<meta name="theme-color" content="#2f7a4d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mampf-Plan">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&display=swap">
 <style>
-/* Layout: ruhige Küchen-App. Kopf mit Woche + Personen, Wochenübersicht (5 Teller), Umschalter Montag/Mittwoch,
+/* Layout: ruhige Küchen-App. Kopf mit Woche + Personen, Wochenübersicht (5 Teller), Umschalter Montag/Donnerstag,
    darunter entweder der Karten-Stapel zum Wischen oder (fertig) Gerichte links + Einkaufsliste nach Regalen rechts. */
 :root {
   --bg: #f6f5f1;
@@ -133,6 +139,8 @@ button.slot:hover { box-shadow: var(--shadow); }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .btn[disabled] { opacity: .6; cursor: wait; }
 .btn svg { width: 18px; height: 18px; }
+.btn.next { width: 100%; justify-content: flex-start; text-align: left; }
+.btn.next b { font-weight: 800; }
 .ai-row { margin-top: 18px; text-align: center; max-width: 420px; }
 .ai-row .q { color: var(--muted); font-size: 14px; margin-bottom: 6px; }
 .ai-status { color: var(--muted); font-size: 14px; margin-top: 8px; min-height: 1.4em; }
@@ -216,6 +224,8 @@ ol.steps li::before { content: counter(s); width: 26px; height: 26px; border-rad
 .close svg { width: 18px; height: 18px; }
 .sheet-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
 </style>
+</head>
+<body>
 
 <div class="wrap" lang="de">
   <header>
@@ -233,7 +243,7 @@ ol.steps li::before { content: counter(s); width: 26px; height: 26px; border-rad
   </header>
 
   <section class="week" aria-labelledby="weekHead">
-    <div class="week-head"><h2 id="weekHead">Was es diese Woche gibt</h2><p>Montag 3 Gerichte · Mittwoch 2 Gerichte</p></div>
+    <div class="week-head"><h2 id="weekHead">Was es diese Woche gibt</h2><p>Montag 3 Gerichte · Donnerstag 2 Gerichte</p></div>
     <div class="slots" id="slots"></div>
   </section>
 
@@ -532,14 +542,14 @@ const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
 const lastWeek = isoWeek(new Date(now.getTime() - 7 * 864e5)).id;
 const ROUNDS = [
   { key: "mo", rid: WEEK.id + "-mo", title: "Montag-Einkauf", target: 3, from: 0 },
-  { key: "mi", rid: WEEK.id + "-mi", title: "Mittwoch-Einkauf", target: 2, from: 2 }
+  { key: "mi", rid: WEEK.id + "-mi", title: "Donnerstag-Einkauf", target: 2, from: 0 }
 ];
 const UNITS = ["g", "ml", "Stk", "EL", "TL", "Zehe", "Bund", "Dose", "Pkg", "Glas", "Topf", ""];
 
 // ================= Zustand =================
 const state = { rounds: {}, custom: {}, persons: 4, quick: true };
 let db = null, sample = null;
-let activeRound = dow >= 2 ? "mi" : "mo";
+let activeRound = dow >= 3 ? "mi" : "mo";
 let dragging = false, renderQueued = false;
 
 const pool = () => RECIPES.concat(Object.values(state.custom));
@@ -664,7 +674,7 @@ function renderSlots() {
     const ids = chosenIn(round.rid);
     for (let i = 0; i < round.target; i++) {
       const r = byId(ids[i]);
-      const tag = el("span", { class: "tag", text: round.key === "mo" ? "Mo-Einkauf" : "Mi-Einkauf" });
+      const tag = el("span", { class: "tag", text: round.key === "mo" ? "Mo-Einkauf" : "Do-Einkauf" });
       if (r) s.append(el("button", { type: "button", class: "slot", onclick: () => openRecipe(r.id), "aria-label": "Rezept öffnen: " + r.name },
         art(r), el("span", { class: "info" }, tag, el("span", { class: "nm", text: r.name }))));
       else s.append(el("div", { class: "slot empty" }, el("span", { class: "art", text: "noch offen" }), el("span", { class: "info" }, tag, el("span", { class: "nm", text: "Gericht " + (i + 1) }))));
@@ -677,14 +687,14 @@ function renderTabs() {
     const n = chosenIn(round.rid).length, locked = dow < round.from, ok = n >= round.target;
     t.append(el("button", { type: "button", role: "tab", id: "tab-" + round.key, "aria-selected": String(activeRound === round.key), onclick: () => { activeRound = round.key; render(); } },
       el("span", { class: "t1", text: round.title }),
-      el("span", { class: "t2" + (ok ? " ok" : ""), text: locked ? "ab Mittwoch" : ok ? "Einkaufsliste bereit" : n + " von " + round.target + " gewählt" })));
+      el("span", { class: "t2" + (ok ? " ok" : ""), text: locked ? "später" : ok ? "Einkaufsliste bereit" : n + " von " + round.target + " gewählt" })));
   });
 }
 function renderRound() {
   const main = $("round"); main.innerHTML = "";
   const round = ROUNDS.find(r => r.key === activeRound);
   if (dow < round.from) {
-    main.append(el("div", { class: "panel locked" }, el("h3", { text: "Ab Mittwoch geht's weiter" }),
+    main.append(el("div", { class: "panel locked" }, el("h3", { text: "Später geht's weiter" }),
       el("p", { text: "Dann bekommt ihr einen neuen Stapel und sucht 2 weitere Gerichte aus. Dazu gibt es eine zweite Einkaufsliste." })));
     return;
   }
@@ -793,12 +803,15 @@ function renderDone(main, round, ids) {
     el("h2", { id: "shopTitle" }, "Einkaufsliste", el("span", { class: "count", text: got + " von " + buy.length + " erledigt · " + state.persons + " Personen" })),
     el("div", { class: "meter" }, el("i", { style: { width: (buy.length ? got / buy.length * 100 : 0) + "%" } })),
     el("div", { class: "how" }, el("b", { text: "Bei Gurkerl bestellen" }),
-      el("span", { class: "n", text: "1" }), el("span", { text: "Bei einer Zutat auf „Gurkerl“ tippen. Die passende Suche öffnet sich." }),
-      el("span", { class: "n", text: "2" }), el("span", { text: "Produkt in den Gurkerl-Warenkorb legen und hier abhaken." }),
-      el("span", { class: "n", text: "3" }), el("span", { text: "Wenn alles abgehakt ist, auf gurkerl.at bestellen." })));
+      el("span", { class: "n", text: "1" }), el("span", { text: "Auf „Nächste Zutat“ tippen. Gurkerl sucht sie, und sie wird hier abgehakt." }),
+      el("span", { class: "n", text: "2" }), el("span", { text: "Bei Gurkerl ein Produkt in den Warenkorb legen und zurück zum Mampf-Plan wechseln." }),
+      el("span", { class: "n", text: "3" }), el("span", { text: "Wiederholen, bis alles abgehakt ist. Dann bei Gurkerl bestellen." })));
+  const next = AISLE_ORDER.flatMap(a => buy.filter(e => e.aisle === a)).find(e => !have[e.key]);
   const copyStatus = el("span", { class: "copied", "aria-live": "polite" });
   card.append(el("div", { class: "tools" },
-    el("a", { class: "btn primary", href: "https://www.gurkerl.at/", target: "_blank", rel: "noopener", html: ICON.cart + "gurkerl.at öffnen" }),
+    next ? el("a", { class: "btn primary next", href: gurkerlUrl(next.n), target: "_blank", rel: "noopener", onclick: () => patchRound(round.rid, { have: { [next.key]: true } }) },
+      el("span", { html: ICON.cart }), el("span", {}, "Nächste Zutat: ", el("b", { text: next.n.replace(/\s*\(.*?\)\s*/g, " ").trim() }))) : null,
+    el("a", { class: "btn" + (next ? "" : " primary"), href: "https://www.gurkerl.at/", target: "_blank", rel: "noopener", html: ICON.cart + (next ? "gurkerl.at öffnen" : "Jetzt bei Gurkerl bestellen") }),
     el("button", { type: "button", class: "btn", html: ICON.copy + "Liste kopieren", onclick: () => copyList(buy, have, copyStatus) }), copyStatus));
   AISLE_ORDER.forEach(a => {
     const items = buy.filter(e => e.aisle === a); if (!items.length) return;
@@ -923,6 +936,7 @@ document.addEventListener("keydown", e => {
 });
 
 // ================= Start =================
+if ("serviceWorker" in navigator && location.protocol === "https:" && !window.claude) navigator.serviceWorker.register("sw.js").catch(() => {});
 localLoad();
 render();
 (async () => {
