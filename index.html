@@ -95,23 +95,23 @@ button.slot:hover { box-shadow: var(--shadow); }
 .bars { display: grid; grid-auto-flow: column; gap: 6px; }
 .bars i { height: 6px; border-radius: 3px; background: var(--line); }
 .bars i.on { background: var(--accent); }
-.stage { position: relative; width: 100%; max-width: 420px; height: 520px; }
+.stage { position: relative; width: 100%; max-width: 420px; height: 560px; }
 .rcard { position: absolute; inset: 0; background: var(--surface); border-radius: 22px; box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab; transform-origin: 50% 85%; border: 1px solid var(--line); }
 .rcard.back1 { transform: translateY(10px) scale(.965); opacity: .9; }
 .rcard.back2 { transform: translateY(20px) scale(.93); opacity: .7; }
 .rcard.back1, .rcard.back2 { pointer-events: none; }
-.rcard .art { aspect-ratio: 5 / 3; flex: none; background: var(--surface-2); }
+.rcard .art { aspect-ratio: 16 / 9; flex: none; background: var(--surface-2); }
 .rcard .art svg { width: 100%; height: 100%; display: block; }
 .rcard .body { padding: 16px 20px 18px; display: flex; flex-direction: column; gap: 8px; flex: 1; min-height: 0; }
-.rcard h3 { font-size: 24px; line-height: 1.15; }
-.rcard p { margin: 0; color: var(--muted); }
+.rcard h3 { font-size: 24px; line-height: 1.15; flex: none; }
+.rcard p { margin: 0; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; flex: none; }
 .meta { display: flex; flex-wrap: wrap; gap: 6px; }
 .pill { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: var(--surface-2); color: var(--ink); }
 .pill svg { width: 14px; height: 14px; }
 .pill.ai { background: var(--accent-soft); color: var(--accent); }
 .rcard .foot { margin-top: auto; display: flex; justify-content: space-between; align-items: center; }
 .link { border: 0; background: none; padding: 0; color: var(--accent); font-weight: 700; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
-.ings { font-size: 13px; color: var(--muted); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.ings { font-size: 13px; color: var(--muted); overflow: hidden; flex: 0 1 auto; min-height: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .stamp { position: absolute; top: 18px; font-weight: 800; font-size: 22px; letter-spacing: .06em; padding: 4px 14px; border-radius: 10px; opacity: 0; pointer-events: none; z-index: 2; }
 .stamp.yes { left: 18px; background: var(--accent); color: var(--accent-ink); transform: rotate(-8deg); }
 .stamp.no { right: 18px; background: var(--no); color: #fff; transform: rotate(8deg); }
@@ -187,6 +187,11 @@ details.basics summary { cursor: pointer; font-weight: 600; color: var(--muted);
 .pick .art.noimg span, .slot .art.noimg span { font-size: 36px; }
 .credit { margin-top: 40px; font-size: 13px; color: var(--muted); text-align: center; }
 .credit a { color: inherit; }
+.quick { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--muted); margin: -4px 0 14px; cursor: pointer; }
+.quick input { width: 18px; height: 18px; accent-color: var(--accent); margin: 0; }
+.rcard .by { font-size: 13px; font-weight: 700; color: var(--accent); margin-top: -4px; }
+.sheet .source { font-size: 14px; color: var(--muted); margin: 8px 0 0; }
+.sheet .source a { color: var(--accent); font-weight: 600; }
 /* ---------- Rezept ---------- */
 dialog { border: 0; padding: 0; background: transparent; width: min(760px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); color: var(--ink); }
 dialog::backdrop { background: rgba(20, 24, 22, .45); }
@@ -342,16 +347,92 @@ const RECIPES = [
     ["Kichererbsen|2|Dose", "Tortilla-Wraps|8|Stk", "Avocado|2|Stk", "Paradeiser|3|Stk", "Rote Zwiebel|1|Stk", "Limette|2|Stk", "Sauerrahm|200|g", "Koriander frisch|1|Bund", "Paprikapulver|2|TL", "Olivenöl|2|EL", "Essig|2|TL", "Salz"],
     ["Ofen auf 200 °C vorheizen. Kichererbsen abgießen, trocken tupfen, mit Öl und Paprikapulver mischen und 20 bis 25 Minuten knusprig rösten.", "Paradeiser würfeln, Zwiebel fein schneiden und mit Essig und Salz mischen.", "Avocados mit einer Gabel zerdrücken, mit Limettensaft und Salz würzen.", "Sauerrahm mit etwas Paprikapulver verrühren. Tortillas in einer heißen Pfanne kurz erwärmen.", "Alles auf den Tisch stellen. Jeder füllt seine Tortilla mit Creme, Kichererbsen, Guacamole, Salsa und Koriander."])
 ];
+const GF = "BBC Good Food";
+const Q = (id, mealId, src, name, desc, time, tags, ing, steps) => ({ ...R(id, mealId, name, desc, time, tags, ing, steps), src });
+RECIPES.push(
+  Q("thairind", 53199, { by: "BBC Good Food", url: "https://www.bbcgoodfood.com/recipes/thai-beef-stir-fry" }, "Thai-Rindfleisch mit Basilikum", "Zarte Rindfleischstreifen, im Wok in 5 Minuten gebraten, mit Austernsauce und frischem Basilikum. Dazu Reis.", 15, ["Schnell", "Rind"],
+    ["Rinderhüfte|500|g", "Austernsauce|3|EL", "Thai-Basilikum|1|Topf", "Paprika rot|1|Stk", "Frühlingszwiebeln|1|Bund", "Jasminreis|300|g", "Chili rot|1|Stk", "Sonnenblumenöl|2|EL"],
+    ["Reis nach Packung kochen.", "Rindfleisch quer zur Faser in dünne Streifen schneiden, Paprika und Frühlingszwiebeln in Streifen.", "Wok sehr stark erhitzen, Öl hineingeben und Fleisch mit Paprika unter Rühren 3 Minuten braten.", "Austernsauce und Frühlingszwiebeln dazugeben und kurz durchschwenken.", "Basilikum unterheben und mit Reis servieren. Chili für die Erwachsenen extra dazustellen."]),
+  Q("steaksalat", 53229, { by: "Sophie Godwin", site: GF, url: "https://www.bbcgoodfood.com/recipes/steak-vietnamese-noodle-salad" }, "Steak mit vietnamesischem Nudelsalat", "Knackiger Reisnudelsalat mit Karotten, Chinakohl und Limetten-Dressing, darauf rosa gebratenes Steak.", 25, ["Leicht", "Rind"],
+    ["Rinderhüfte (Steak)|500|g", "Reisnudeln|200|g", "Karotten|3|Stk", "Chinakohl|0.5|Stk", "Frühlingszwiebeln|1|Bund", "Koriander frisch|1|Bund", "Limette|2|Stk", "Knoblauch|1|Zehe", "Fischsauce|1|EL", "Reisessig|2|TL", "Brauner Zucker|1|EL", "Sonnenblumenöl|1|EL", "Salz"],
+    ["Für das Dressing Limettensaft, Zucker, Reisessig, gehackten Knoblauch, Fischsauce und 2 EL Wasser verrühren, bis der Zucker gelöst ist.", "Reisnudeln nach Packung kochen, kalt abschrecken und abtropfen lassen.", "Karotten fein raspeln, Chinakohl und Frühlingszwiebeln in feine Streifen schneiden. Mit Nudeln und Dressing mischen.", "Steak salzen und in heißem Öl pro Seite 2 bis 3 Minuten braten. 5 Minuten rasten lassen, dann in Scheiben schneiden.", "Salat in Schüsseln verteilen, Steak darauflegen und mit Koriander bestreuen."]),
+  Q("quinoasalat", 53011, { by: "BBC Good Food", url: "https://www.bbcgoodfood.com/recipes/griddled-chicken-quinoa-greek-salad" }, "Hühnerbrust mit griechischem Quinoa-Salat", "Gegrilltes Huhn mit Knoblauchbutter auf Quinoa mit Feta, Oliven, Paradeisern und Minze. Satt und leicht zugleich.", 20, ["Leicht", "Huhn"],
+    ["Hühnerbrust|4|Stk", "Quinoa|225|g", "Feta|150|g", "Cherry-Paradeiser|250|g", "Schwarze Oliven|1|Glas", "Rote Zwiebel|1|Stk", "Minze|1|Topf", "Zitrone|1|Stk", "Knoblauch|1|Zehe", "Butter|25|g", "Olivenöl|3|EL", "Salz", "Pfeffer"],
+    ["Quinoa nach Packung kochen, kalt abspülen und gut abtropfen lassen.", "Butter mit fein gehacktem Knoblauch verrühren.", "Hühnerbrüste mit etwas Öl, Salz und Pfeffer einreiben und in einer Grillpfanne pro Seite 4 bis 5 Minuten braten, bis sie durch sind. Knoblauchbutter darauf schmelzen lassen.", "Paradeiser halbieren, Zwiebel fein schneiden. Mit Oliven, zerbröseltem Feta, Minze und Quinoa mischen. Mit restlichem Öl, Zitronensaft, Salz und Pfeffer anmachen.", "Huhn in Scheiben auf den Salat legen und mit dem Bratsaft beträufeln."]),
+  Q("thaipuffer", 53206, { by: "James Martin", site: GF, url: "https://www.bbcgoodfood.com/recipes/thai-chicken-cakes-sweet-chilli-sauce" }, "Thai-Hühnerlaibchen mit Sweet-Chili", "Kleine, saftige Laibchen aus Huhn, Ingwer und Koriander vom britischen Fernsehkoch James Martin. Kinder lieben sie mit süßer Chilisauce.", 25, ["Schnell", "Huhn"],
+    ["Hühnerbrust|500|g", "Zwiebel|1|Stk", "Knoblauch|1|Zehe", "Ingwer|1|Stk", "Koriander frisch|1|Bund", "Sweet-Chili-Sauce|1|Flasche", "Limette|1|Stk", "Frühlingszwiebeln|1|Bund", "Jasminreis|300|g", "Gurke|1|Stk", "Olivenöl|2|EL", "Salz", "Pfeffer"],
+    ["Reis nach Packung kochen.", "Huhn grob schneiden und mit Zwiebel, Knoblauch, Ingwer und der Hälfte vom Koriander im Mixer fein hacken. Salzen und pfeffern.", "Mit nassen Händen 12 kleine Laibchen formen.", "In Öl bei mittlerer Hitze 6 bis 8 Minuten braten, einmal wenden, bis sie durch sind.", "Mit Reis, Gurkenscheiben, Sweet-Chili-Sauce, Limettenspalten, Frühlingszwiebeln und Koriander servieren."]),
+  Q("huehnerspiesse", 53264, { by: "Jennifer Joyce", site: GF, url: "https://www.bbcgoodfood.com/recipes/smoky-chicken-skewers" }, "Rauchige Hühnerspieße mit Joghurt-Dip", "Würzige Spieße mit geräuchertem Paprika und Kreuzkümmel aus der Pfanne. Dazu Fladenbrot und Salat.", 30, ["Huhn", "Familie"],
+    ["Hühnerkeulen ohne Knochen|700|g", "Paprikapulver geräuchert|1|TL", "Kreuzkümmel|1|TL", "Fenchelsamen|1|TL", "Knoblauch|2|Zehe", "Joghurt|250|g", "Fladenbrot|1|Stk", "Gurke|1|Stk", "Paradeiser|3|Stk", "Holzspieße|1|Pkg", "Essig|1|TL", "Olivenöl|2|EL", "Salz"],
+    ["Holzspieße 10 Minuten in Wasser einweichen.", "Huhn in 3 cm große Stücke schneiden. Mit 1 EL Öl, Gewürzen, 1 Zehe gepresstem Knoblauch, Essig und Salz mischen.", "Je 2 bis 3 Stücke auf einen Spieß stecken.", "In einer heißen Grillpfanne mit dem restlichen Öl pro Seite 3 bis 4 Minuten braten, bis sie durch sind.", "Joghurt mit dem restlichen Knoblauch und Salz verrühren. Mit Fladenbrot, Gurke und Paradeisern servieren."]),
+  Q("vietsalat", 53232, { by: "BBC Good Food", url: "https://www.bbcgoodfood.com/recipes/vietnamese-chicken-salad" }, "Vietnamesischer Hühnersalat mit Reisnudeln", "Frisch, bunt und knackig: Huhn, Karotte, Gurke, Radieschen und Minze mit Erdnüssen und Limetten-Dressing.", 20, ["Leicht", "Huhn"],
+    ["Hühnerbrust|2|Stk", "Reisnudeln|200|g", "Karotten|2|Stk", "Gurke|1|Stk", "Radieschen|1|Bund", "Rote Zwiebel|1|Stk", "Minze|1|Topf", "Erdnüsse|50|g", "Limette|1|Stk", "Fischsauce|1|EL", "Sojasauce|2|EL", "Sesamöl|1|EL", "Salz"],
+    ["Hühnerbrust in Salzwasser 12 Minuten leise köcheln lassen, herausnehmen und in Streifen zupfen.", "Für das Dressing Limettensaft und -schale, Fischsauce, Sojasauce und Sesamöl in einer großen Schüssel verrühren.", "Reisnudeln nach Packung kochen, abgießen und gleich mit dem Dressing mischen.", "Karotte und Gurke mit dem Sparschäler in lange Streifen schneiden, Radieschen und Zwiebel in feine Scheiben.", "Alles mit Huhn und Minze vermengen und mit gehackten Erdnüssen bestreuen."]),
+  Q("lachsavocado", 52960, { by: "BBC Good Food", url: "https://www.bbcgoodfood.com/recipes/4521/salmon-avocado-and-cucumber-salad" }, "Knuspriger Lachs auf Avocado-Salat", "Warm gebratener Lachs auf Spinat, Avocado und Gurke mit Honig-Limetten-Dressing. Viel gesundes Fett, wenig Arbeit.", 20, ["Leicht", "Fisch", "Schnell"],
+    ["Lachsfilet|4|Stk", "Avocado|3|Stk", "Gurke|1|Stk", "Babyspinat|200|g", "Minze|1|Topf", "Limette|1|Stk", "Honig|2|TL", "Baguette|1|Stk", "Olivenöl|3|EL", "Salz", "Pfeffer"],
+    ["Lachs salzen, pfeffern und mit etwas Öl einreiben.", "Für das Dressing Limettensaft und -schale, Honig, gehackte Minze und restliches Öl verrühren.", "Avocados in Scheiben, Gurke in Stücke schneiden. Mit dem Spinat auf 4 Teller verteilen und mit der Hälfte vom Dressing beträufeln.", "Lachs in einer beschichteten Pfanne pro Seite 3 bis 4 Minuten knusprig braten.", "Auf den Salat legen, restliches Dressing darüber und mit Brot servieren."]),
+  Q("thaireis", 53198, { by: "Jennifer Joyce", site: GF, url: "https://www.bbcgoodfood.com/recipes/thai-fried-rice-prawns-peas" }, "Thai-Bratreis mit Garnelen und Spiegelei", "Gebratener Reis mit Garnelen, Erbsen und Koriander, obendrauf ein Spiegelei. Perfekt für Reis vom Vortag.", 20, ["Schnell", "Fisch"],
+    ["Garnelen (TK)|250|g", "Basmatireis|300|g", "Erbsen (TK)|150|g", "Eier|4|Stk", "Rote Zwiebel|1|Stk", "Knoblauch|2|Zehe", "Koriander frisch|1|Bund", "Sojasauce|2|EL", "Fischsauce|1|EL", "Sonnenblumenöl|2|EL"],
+    ["Reis am besten am Vortag kochen, sonst kochen und auf einem Blech ausbreiten und abkühlen lassen.", "Zwiebel und Knoblauch in Scheiben schneiden und in 1 EL Öl im Wok 2 bis 3 Minuten goldbraun braten.", "Garnelen dazugeben und 1 bis 2 Minuten braten. Reis und Erbsen dazu und unter Wenden richtig heiß werden lassen.", "Soja- und Fischsauce sowie gehackten Koriander unterrühren.", "Im restlichen Öl 4 Spiegeleier braten und je eines auf den Reis setzen."]),
+  Q("garnelenpfanne", 53184, { by: "BBC Good Food", url: "https://www.bbcgoodfood.com/recipes/spanish-rice-prawn-one-pot" }, "Spanische Reispfanne mit Garnelen", "Wie eine schnelle Paella aus einem Topf: Reis, Paprika, ein bisschen Chorizo und Garnelen. Fertig in 20 Minuten.", 20, ["Schnell", "Fisch"],
+    ["Basmatireis|250|g", "Garnelen (TK)|250|g", "Chorizo|50|g", "Paprika rot|1|Stk", "Paprika grün|1|Stk", "Zwiebel|1|Stk", "Knoblauch|2|Zehe", "Gehackte Paradeiser (Dose)|1|Dose", "Zitrone|1|Stk", "Olivenöl|1|EL", "Salz"],
+    ["Wasser aufkochen. Zwiebel, Paprika und Chorizo in Streifen schneiden, Knoblauch hacken.", "Alles in einer großen Pfanne mit Deckel in Öl bei hoher Hitze 3 Minuten anbraten.", "Reis, Paradeiser und 500 ml kochendes Wasser einrühren, zudecken und 12 Minuten kochen.", "Garnelen unterrühren (bei Bedarf einen Schuss Wasser dazu) und 2 bis 3 Minuten garen, bis sie rosa sind.", "Mit Salz abschmecken und mit Zitronenspalten servieren."]),
+  Q("nicoise", 52852, { by: "BBC Good Food", url: "https://www.bbcgoodfood.com/recipes/9529/winter-tuna-nioise" }, "Thunfisch-Niçoise mit Ofenerdäpfeln", "Warmer Salat mit knusprigen Erdäpfeln, Spinat, Thunfisch und Ei. Eine vollständige Mahlzeit in einer Schüssel.", 30, ["Leicht", "Fisch"],
+    ["Erdäpfel speckig|600|g", "Thunfisch (Dose)|2|Dose", "Eier|4|Stk", "Babyspinat|150|g", "Cherry-Paradeiser|250|g", "Rote Zwiebel|0.5|Stk", "Kapern|2|EL", "Essig|1|EL", "Olivenöl|4|EL", "Salz", "Pfeffer"],
+    ["Ofen auf 200 °C vorheizen. Erdäpfel in kleine Stücke schneiden, mit 1 EL Öl und Salz mischen und 20 Minuten knusprig rösten.", "Eier 8 Minuten kochen, kalt abschrecken, schälen und halbieren.", "Restliches Öl mit Essig, Kapern und halbierten Paradeisern in einer großen Schüssel verrühren, salzen und pfeffern.", "Fein geschnittene Zwiebel, Spinat, abgetropften Thunfisch und warme Erdäpfel dazugeben und vorsichtig mischen.", "Mit den Eiern belegen und sofort servieren."]),
+  Q("yakiudon", 52871, { by: "Jennifer Joyce", site: GF, url: "https://www.bbcgoodfood.com/recipes/yaki-udon" }, "Yaki Udon mit Gemüse", "Dicke japanische Nudeln, mit Kraut, Pilzen und Frühlingszwiebeln in süß-salziger Sauce gebraten. In 15 Minuten fertig.", 15, ["Schnell", "Vegetarisch"],
+    ["Udon-Nudeln|600|g", "Weißkraut|0.25|Stk", "Shiitake-Pilze|150|g", "Zwiebel|1|Stk", "Frühlingszwiebeln|1|Bund", "Mirin|4|EL", "Sojasauce|3|EL", "Worcestersauce|1|EL", "Sesamöl|2|EL", "Zucker|1|EL"],
+    ["Udon-Nudeln nach Packung garen und abtropfen lassen.", "Für die Sauce Mirin, Sojasauce, Zucker und Worcestersauce verrühren.", "Zwiebel und Kraut in Streifen schneiden und in 1 EL Sesamöl 5 Minuten weich braten.", "Pilze und die Hälfte der Frühlingszwiebeln dazugeben und 1 Minute braten.", "Restliches Öl, Nudeln und Sauce dazugeben und braten, bis alles glänzt und heiß ist. Mit Frühlingszwiebeln bestreuen."]),
+  Q("tofupfanne", 53240, { by: "BBC Good Food", url: "https://www.bbcgoodfood.com/recipes/tofu-greens-cashew-stir-fry" }, "Tofu-Gemüse-Pfanne mit Cashews", "Viel Grün aus dem Wok: Brokkoli, Pak Choi und Edamame mit mariniertem Tofu und Hoisin-Sauce.", 20, ["Vegetarisch", "Leicht"],
+    ["Tofu mariniert|300|g", "Brokkoli|1|Stk", "Pak Choi|2|Stk", "Edamame (TK)|150|g", "Frühlingszwiebeln|1|Bund", "Knoblauch|3|Zehe", "Cashewkerne|50|g", "Hoisin-Sauce|2|EL", "Sojasauce|1|EL", "Jasminreis|300|g", "Sonnenblumenöl|1|EL"],
+    ["Reis nach Packung kochen.", "Brokkoli in kleine Röschen teilen und im heißen Öl im Wok 5 Minuten braten. Bei Bedarf einen Schuss Wasser dazugeben.", "Knoblauch in Scheiben 1 Minute mitbraten.", "Frühlingszwiebeln, Edamame, Pak Choi und gewürfelten Tofu dazugeben und 2 bis 3 Minuten pfannenrühren.", "Hoisin, Sojasauce und Cashews unterheben und mit Reis servieren."]),
+  Q("kokossuppe", 53208, { by: "BBC Good Food", url: "https://www.bbcgoodfood.com/recipes/thai-coconut-veg-broth" }, "Thai-Kokos-Nudelsuppe mit Gemüse", "Cremige Kokossuppe mit Eiernudeln, Karotten, Chinakohl und Sprossen. Wärmt von innen.", 25, ["Vegetarisch", "Suppe"],
+    ["Eiernudeln|175|g", "Kokosmilch|1|Dose", "Gemüsebrühe|1000|ml", "Rote Currypaste|1|EL", "Karotten|2|Stk", "Chinakohl|0.5|Stk", "Sojasprossen|150|g", "Cherry-Paradeiser|6|Stk", "Limette|1|Stk", "Frühlingszwiebeln|1|Bund", "Koriander frisch|1|Bund", "Brauner Zucker|2|TL", "Sonnenblumenöl|1|TL"],
+    ["Currypaste im Öl 1 Minute anrösten (für Kinder lieber etwas weniger).", "Brühe, Kokosmilch und Zucker dazugeben und 3 Minuten köcheln.", "Nudeln, Karottenscheiben und Chinakohl-Streifen hineingeben und 4 bis 6 Minuten garen.", "Sprossen und halbierte Paradeiser einrühren, mit Limettensaft abschmecken.", "In Schüsseln füllen und mit Frühlingszwiebeln und Koriander bestreuen."]),
+  Q("larb", 53203, { by: "BBC Good Food", url: "https://www.bbcgoodfood.com/recipes/thai-rice-noodle-salad" }, "Thai-Reisnudelsalat mit Faschiertem", "Lauwarmer Nudelsalat mit würzigem Faschierten, Ingwer, Sprossen und Salat. Leicht und trotzdem sättigend.", 20, ["Leicht", "Schwein"],
+    ["Schweinefaschiertes|500|g", "Reisnudeln (dünn)|200|g", "Sojasprossen|200|g", "Kopfsalat|1|Stk", "Rote Zwiebel|1|Stk", "Ingwer|1|Stk", "Limette|2|Stk", "Fischsauce|2|EL", "Sesam|2|EL", "Brauner Zucker|1|TL", "Sonnenblumenöl|1|TL"],
+    ["Nudeln und Sprossen mit kochendem Wasser übergießen und 4 Minuten ziehen lassen. Abgießen und kalt abspülen.", "Limettensaft und -schale, Fischsauce und Zucker verrühren und mit den Nudeln, fein geschnittener Zwiebel und gezupftem Salat mischen.", "Faschiertes mit geriebenem Ingwer in Öl 8 bis 10 Minuten krümelig braun braten.", "Fleisch unter die Nudeln heben.", "Auf 4 Schüsseln verteilen und mit Sesam bestreuen."]),
+  Q("kuerbistopf", 53236, { by: "Jennifer Joyce", site: GF, url: "https://www.bbcgoodfood.com/recipes/vietnamese-veggie-hotpot" }, "Vietnamesischer Kürbis-Eintopf mit Fisolen", "Butternusskürbis und Fisolen in Ingwer-Soja-Sud, dazu duftender Jasminreis. Mild und herbstlich.", 25, ["Vegetarisch", "Leicht"],
+    ["Butternusskürbis|1|Stk", "Fisolen|200|g", "Ingwer|1|Stk", "Knoblauch|2|Zehe", "Frühlingszwiebeln|1|Bund", "Koriander frisch|1|Bund", "Jasminreis|300|g", "Gemüsebrühe|400|ml", "Sojasauce|1|EL", "Brauner Zucker|1|EL", "Sonnenblumenöl|2|TL"],
+    ["Reis nach Packung kochen.", "Ingwer und Knoblauch fein hacken und im Öl in einem Topf 3 Minuten anbraten.", "Kürbis schälen, in Würfel schneiden und mit Sojasauce, Zucker und Brühe dazugeben. Zugedeckt 10 Minuten köcheln.", "Fisolen halbieren, dazugeben und offen 3 bis 4 Minuten garen, bis alles weich ist.", "Frühlingszwiebeln unterrühren, mit Koriander bestreuen und mit Reis servieren."]),
+  Q("spanischespaghetti", 53177, { by: "Sara Buenfeld", site: GF, url: "https://www.bbcgoodfood.com/recipes/spaghetti-spanish-flavours" }, "Spaghetti mit Chorizo und Paprika", "Nur fünf Zutaten und 20 Minuten: Chorizo färbt die Nudeln rot, Paprika und Parmesan machen sie rund.", 20, ["Pasta", "Schnell"],
+    ["Spaghetti|400|g", "Chorizo|100|g", "Paprika rot|2|Stk", "Petersilie|1|Bund", "Parmesan|50|g", "Olivenöl|2|EL", "Salz", "Pfeffer"],
+    ["Nudelwasser aufsetzen. Chorizo in Streifen, Paprika in kleine Würfel schneiden, Petersilie hacken.", "Spaghetti in Salzwasser bissfest kochen.", "Öl in einer großen Pfanne erhitzen, Chorizo und Paprika mit Pfeffer 2 bis 3 Minuten braten.", "Eine halbe Tasse Nudelwasser aufheben, Spaghetti abgießen und in die Pfanne geben.", "Petersilie, geriebenen Parmesan und etwas Nudelwasser dazugeben und gut durchschwenken."]),
+  Q("kichererbseneintopf", 53166, { by: "Thomasina Miers", site: GF, url: "https://www.bbcgoodfood.com/recipes/chickpea-chorizo-spinach-stew" }, "Kichererbsen-Eintopf mit Chorizo und Spinat", "Von Thomasina Miers, MasterChef-Siegerin und Gründerin der Restaurantkette Wahaca: ein spanischer Eintopf voller Gemüse und Eiweiß.", 30, ["Gesund", "Schwein"],
+    ["Kichererbsen|2|Dose", "Chorizo|150|g", "Blattspinat (frisch)|300|g", "Zwiebel|1|Stk", "Karotten|1|Stk", "Stangensellerie|1|Stk", "Knoblauch|2|Zehe", "Thymian|1|Bund", "Lorbeerblätter|2|Stk", "Paprikapulver geräuchert|1|TL", "Zimt|0.25|TL", "Essig|2|EL", "Baguette|1|Stk", "Olivenöl|3|EL", "Salz"],
+    ["Zwiebel fein würfeln und in Öl 3 bis 4 Minuten anbraten. Gewürfelte Karotte, Sellerie, Thymian und Lorbeer dazugeben und 3 Minuten mitbraten.", "Knoblauch, gewürfelte Chorizo, Zimt und Paprikapulver dazugeben und braten, bis die Chorizo knusprig wird.", "Abgespülte Kichererbsen, Essig und 150 ml Wasser einrühren und 2 Minuten köcheln.", "Spinat unterheben, bis er zusammenfällt. Abschmecken.", "Warm mit knusprigem Baguette servieren."]),
+  Q("padseeew", 52774, { by: "TheMealDB", url: "https://www.themealdb.com/meal/52774" }, "Pad See Ew mit Huhn und Brokkoli", "Breite Reisnudeln mit Huhn, Ei und Brokkoli in dunkler, leicht süßer Sauce. Thailands Lieblings-Nudelgericht.", 25, ["Huhn", "Schnell"],
+    ["Breite Reisnudeln|300|g", "Hühnerbrust|300|g", "Brokkoli|1|Stk", "Eier|2|Stk", "Knoblauch|3|Zehe", "Dunkle Sojasauce|3|EL", "Austernsauce|3|EL", "Sojasauce|1|EL", "Essig|1|EL", "Zucker|1|EL", "Sonnenblumenöl|3|EL"],
+    ["Reisnudeln nach Packung einweichen oder garen und abtropfen lassen.", "Für die Sauce dunkle und helle Sojasauce, Austernsauce, Essig, Zucker und 3 EL Wasser verrühren.", "Knoblauch hacken, Huhn in dünne Streifen, Brokkoli in kleine Röschen schneiden. Alles im heißen Öl im Wok braten, bis das Huhn goldbraun ist.", "Zur Seite schieben, Eier hineinschlagen und verrühren.", "Nudeln und Sauce dazugeben und vorsichtig mischen, bis die Nudeln dunkel glänzen."]),
+  Q("paradeisei", 53372, { by: "Simply Recipes", url: "https://www.simplyrecipes.com/chinese-tomato-egg-recipe-7562056" }, "Chinesisches Paradeis-Ei mit Reis", "Das chinesische Familienessen schlechthin: cremiges Rührei mit saftigen Paradeisern, süß-salzig, auf Reis. Fertig in 20 Minuten.", 20, ["Vegetarisch", "Schnell"],
+    ["Eier|8|Stk", "Paradeiser|700|g", "Frühlingszwiebeln|1|Bund", "Jasminreis|300|g", "Maisstärke|2|TL", "Sesamöl|1|TL", "Zucker|2|TL", "Sonnenblumenöl|2|EL", "Gemüsebrühe|60|ml", "Salz", "Pfeffer"],
+    ["Reis nach Packung kochen.", "Paradeiser in Spalten schneiden. Eier mit einer Prise Salz verquirlen.", "Eier in 1 EL Öl bei mittlerer Hitze zu weichem Rührei stocken lassen und herausnehmen.", "Paradeiser im restlichen Öl 2 bis 3 Minuten braten, bis sie Saft ziehen. Brühe mit Stärke, Zucker, Salz und Pfeffer verrühren und dazugeben.", "Rührei zurück in die Pfanne geben, Sesamöl und Frühlingszwiebeln unterheben und auf Reis servieren."]),
+  Q("arrabbiata", 52771, { by: "TheMealDB", url: "https://www.themealdb.com/meal/52771" }, "Penne in Paradeissauce (mild)", "Der italienische Klassiker, hier ohne Schärfe für die Kinder. Chiliflocken kommen für die Großen extra auf den Tisch.", 20, ["Pasta", "Vegetarisch", "Schnell"],
+    ["Penne|500|g", "Gehackte Paradeiser (Dose)|2|Dose", "Knoblauch|3|Zehe", "Basilikum|1|Topf", "Parmesan|50|g", "Chiliflocken|1|TL", "Olivenöl|4|EL", "Oregano|1|TL", "Salz", "Pfeffer"],
+    ["Penne in Salzwasser nach Packung kochen.", "Knoblauch hacken und in Öl 1 bis 2 Minuten anschwitzen.", "Paradeiser und Oregano dazugeben, salzen, pfeffern und 5 Minuten köcheln.", "Vom Herd nehmen und gehacktes Basilikum unterrühren.", "Penne mit der Sauce mischen und mit Parmesan servieren. Chiliflocken extra dazustellen."]),
+  Q("fischtacos", 52819, { by: "Tesco Real Food", url: "https://realfood.tesco.com/recipes/cajun-spiced-fish-tacos.html" }, "Fisch-Tacos mit Avocado", "Gewürzter weißer Fisch in weichen Tortillas mit Avocado, Salat und Sauerrahm. Jeder füllt seinen Taco selbst.", 25, ["Fisch", "Familie"],
+    ["Weißfischfilet (Kabeljau)|600|g", "Tortilla-Wraps|8|Stk", "Avocado|2|Stk", "Kopfsalat|1|Stk", "Frühlingszwiebeln|1|Bund", "Tomaten-Salsa|1|Glas", "Sauerrahm|250|g", "Zitrone|1|Stk", "Cajun-Gewürz|2|EL", "Sonnenblumenöl|1|EL", "Salz"],
+    ["Fisch mit Cajun-Gewürz und etwas Salz rundum einreiben (für Kinder nur wenig Gewürz nehmen).", "In Öl bei mittlerer Hitze von beiden Seiten goldbraun braten, etwa 8 bis 10 Minuten, bis er durch ist. In Stücke zerteilen.", "Avocado in Scheiben, Salat und Frühlingszwiebeln in Streifen schneiden.", "Sauerrahm mit etwas Zitronensaft und Salz verrühren. Tortillas kurz erwärmen.", "Alles auf den Tisch stellen und Tacos selbst füllen."]),
+  Q("nudelsalat", 52777, { by: "The Lemon Squeezy", url: "https://thelemonsqueezy.com/recipe/mediterranean-pasta-salad/" }, "Mediterraner Nudelsalat mit Thunfisch", "Farfalle mit Mozzarella-Kugeln, Paradeisern, Oliven, Thunfisch und Basilikum. Warm oder kalt, auch super für den nächsten Tag.", 20, ["Pasta", "Fisch", "Schnell"],
+    ["Farfalle|350|g", "Mozzarella-Kugeln (Mini)|200|g", "Cherry-Paradeiser|250|g", "Thunfisch (Dose)|1|Dose", "Grüne Oliven|1|Glas", "Basilikum|1|Topf", "Olivenöl|3|EL", "Salz", "Pfeffer"],
+    ["Farfalle in Salzwasser nach Packung kochen, abgießen und kalt abspülen.", "Paradeiser vierteln, Oliven in Scheiben schneiden, Basilikum zupfen.", "Paradeiser mit Basilikum und 1 EL Öl in einer großen Schüssel mischen.", "Nudeln, Oliven, Mozzarella und abgetropften Thunfisch dazugeben und mit restlichem Öl, Salz und Pfeffer vermengen.", "Sofort servieren oder 30 Minuten durchziehen lassen."]),
+  Q("rindbrokkoli", 53366, { by: "Simply Recipes", url: "https://www.simplyrecipes.com/recipes/broccoli_beef/" }, "Rindfleisch mit Brokkoli aus dem Wok", "Der Klassiker vom Chinesen, nur frischer: zartes Rind und knackiger Brokkoli in Austernsauce, dazu Reis.", 25, ["Rind", "Schnell"],
+    ["Rinderhüfte|500|g", "Brokkoli|2|Stk", "Knoblauch|2|Zehe", "Austernsauce|3|EL", "Sojasauce|2|EL", "Maisstärke|2|TL", "Hühnersuppe|80|ml", "Jasminreis|300|g", "Sonnenblumenöl|2|EL", "Pfeffer"],
+    ["Rindfleisch in dünne Streifen schneiden und mit 1 TL Sojasauce, ½ TL Stärke und Pfeffer 10 Minuten marinieren. Reis kochen.", "Austernsauce, restliche Sojasauce und Suppe verrühren. Restliche Stärke mit 1 EL Wasser anrühren.", "Brokkoli-Röschen 2 Minuten in kochendem Wasser blanchieren und abtropfen lassen.", "Fleisch im sehr heißen Öl 1 Minute pro Seite anbraten. Knoblauch 30 Sekunden mitbraten.", "Brokkoli und Sauce dazugeben, Stärke einrühren und kurz aufkochen, bis die Sauce glänzt. Mit Reis servieren."])
+);
+const OLD_SRC = {"tafelspitz": "https://www.austria.info/en-gb/recipes/tafelspitz/", "kaspressknoedel": "https://www.austria.info/en-gb/recipes/cheese-dumplings/", "tirolerknoedel": "https://www.austria.info/en-gb/recipes/tirolean-dumplings/", "griessnockerlsuppe": "https://www.austria.info/en-gb/recipes/clear-soup-with-semolina-dumplings/", "schnitzel": "https://www.munchery.com/blog/the-ten-iconic-dishes-of-argentina-and-how-to-cook-them-at-home/", "gulasch": "https://www.chasingthedonkey.com/croatian-recipes-traditional-croatian-goulash/", "laibchen": "https://denmark.dk/people-and-culture/recipes/danish-meat-balls/", "palatschinken": "https://www.tasteatlas.com/nalesniki/recipe", "bolognese": "https://www.themealdb.com/meal/52770", "lasagne": "https://www.bbcgoodfood.com/recipes/classic-lasagne", "carbonara": "https://www.bbcgoodfood.com/recipes/ultimate-spaghetti-carbonara-recipe", "cannelloni": "https://www.bbcgoodfood.com/recipes/531632/spinach-and-ricotta-cannelloni", "alfredo": "https://www.bbcgoodfood.com/recipes/fettucine-alfredo", "pizza": "https://www.dailymail.co.uk/femail/food/article-8240361/Pizza-Express-release-secret-recipe-Margherita-Pizza-make-home.html", "stroganoff": "https://www.bbcgoodfood.com/recipes/beef-stroganoff", "katsucurry": "http://allrecipes.co.uk/recipe/29578/chicken-katsu-curry.aspx", "gebratenerreis": "https://www.simplyrecipes.com/recipes/chicken_fried_rice/", "suesssauer": "https://www.simplyrecipes.com/recipes/sweet_and_sour_chicken/", "enchiladas": "https://www.themealdb.com/meal/52765", "burger": "https://www.bbcgoodfood.com/recipes/aussie-burgers", "gratin": "https://www.instagram.com/p/BHxR7hYBJ6P", "huehnersuppe": "https://polishhousewife.com/rosol-polish-chicken-soup/", "lachs": "https://www.themealdb.com/meal/52773", "fischauflauf": "https://www.themealdb.com/meal/52802", "dal": "https://www.instagram.com/p/BO21bpYD3Fu", "chili": "https://www.bbcgoodfood.com/recipes/veggie-chilli", "ratatouille": "https://www.bbcgoodfood.com/recipes/2903/ratatouille", "shakshuka": "https://www.bbcgoodfood.com/recipes/7573/spicy-tomato-baked-eggs", "tortilla": "https://www.bbcgoodfood.com/recipes/spanish-tortilla", "kuerbissuppe": "https://www.bbcgoodfood.com/recipes/thai-pumpkin-soup", "paradeissuppe": "https://www.bbcgoodfood.com/recipes/2604646/creamy-tomato-soup", "paprikafeta": "https://cookinglsl.com/cottage-cheese-stuffed-peppers/#wprm-recipe-container-59383", "fajitas": "https://www.bbcgoodfood.com/recipes/chickpea-fajitas"};
+RECIPES.forEach(r => { if (!r.src && OLD_SRC[r.id]) r.src = { url: OLD_SRC[r.id] }; });
+
 
 // ================= Bilder =================
 function rng(seed) { let a = 0; for (const ch of seed) a = (a * 31 + ch.charCodeAt(0)) | 0; return () => { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 
 // ================= Einkaufs-Regale =================
 const AISLES = [
-  ["Obst & Gemüse", /zwiebel|karott|knoblauch|ingwer|zitrone|limette|^paprika( rot| gelb)?$|zucchini|melanzani|salat|rucola|paradeiser$|^paradeiser|cherry|gurke$|sellerie|suppengrün|lauch|brokkoli|champignon|kürbis$|basilikum|schnittlauch|petersilie|koriander|dille|erdäpfel|avocado|rote rüben|spinat \(frisch\)/i],
-  ["Fleisch & Fisch", /faschiert|hühner|puten|lachs|schinken|speck|würstel|tafelspitz|rindfleisch|rinderhüfte|schnitzelfleisch|fischfilet|garnelen/i],
-  ["Milch, Käse & Eier", /^milch$|butter|eier|parmesan|pecorino|käse|mozzarella|ricotta|feta|joghurt|sauerrahm|gouda|cheddar|gruyère|obers|crème fraîche|mascarpone/i],
-  ["Kühlregal & Tiefkühl", /\(tk\)|kühlregal|germ/i],
+  ["Obst & Gemüse", /zwiebel|karott|knoblauch|ingwer|zitrone|limette|^paprika( rot| gelb| grün)?$|zucchini|melanzani|salat|rucola|paradeiser$|^paradeiser|cherry|gurke$|sellerie|suppengrün|lauch|brokkoli|champignon|kürbis$|basilikum|schnittlauch|petersilie|koriander|dille|erdäpfel|avocado|rote rüben|spinat \(frisch\)|babyspinat|chinakohl|radieschen|minze|pak choi|fisolen|butternuss|shiitake|weißkraut|sojasprossen|thymian|chili rot|thai-basilikum/i],
+  ["Fleisch & Fisch", /faschiert|hühner|puten|lachs|schinken|speck|würstel|tafelspitz|rindfleisch|rinderhüfte|schnitzelfleisch|fischfilet|garnelen|chorizo/i],
+  ["Milch, Käse & Eier", /^milch$|butter|^eier$|parmesan|pecorino|käse|mozzarella|ricotta|feta|joghurt|sauerrahm|gouda|cheddar|gruyère|obers|crème fraîche|mascarpone/i],
+  ["Kühlregal & Tiefkühl", /\(tk\)|kühlregal|germ|tofu|udon/i],
   ["Brot & Gebäck", /brot|wraps|brötchen|semmel|baguette|tortilla|naan/i]
 ];
 const aisleOf = n => { for (const [name, re] of AISLES) if (re.test(n)) return name; return "Vorrat & Konserven"; };
@@ -379,7 +460,7 @@ const ROUNDS = [
 const UNITS = ["g", "ml", "Stk", "EL", "TL", "Zehe", "Bund", "Dose", "Pkg", "Glas", "Topf", ""];
 
 // ================= Zustand =================
-const state = { rounds: {}, custom: {}, persons: 4 };
+const state = { rounds: {}, custom: {}, persons: 4, quick: true };
 let db = null, sample = null;
 let activeRound = dow >= 2 ? "mi" : "mo";
 let dragging = false, renderQueued = false;
@@ -398,7 +479,7 @@ function deckFor(round) {
   const rnd = rng(round.rid);
   const builtIn = RECIPES.map(r => [rnd(), r]).sort((a, b) => a[0] - b[0]).map(x => x[1]);
   const fresh = Object.values(state.custom).sort((a, b) => (b.at || 0) - (a.at || 0));
-  return fresh.concat(builtIn).filter(r => !votes[r.id] && !blocked.has(r.id));
+  return fresh.concat(builtIn).filter(r => !votes[r.id] && !blocked.has(r.id) && (!state.quick || r.time <= 30));
 }
 
 // ================= Speichern =================
@@ -425,9 +506,9 @@ function patchRound(rid, patch) {
 function savePersons() {
   render();
   if (!db) { localSave(); return; }
-  const p = state.persons;
+  const data = { persons: state.persons, quick: state.quick };
   clearTimeout(savePersons.t);
-  savePersons.t = setTimeout(() => writeDoc("settings/family", () => db.doc("settings/family").set({ persons: p })), 500);
+  savePersons.t = setTimeout(() => writeDoc("settings/family", () => db.doc("settings/family").set(data)), 500);
 }
 
 // ================= Mengen =================
@@ -540,10 +621,13 @@ function renderSwipe(main, round, chosen) {
   const bars = el("div", { class: "bars" }); for (let i = 0; i < round.target; i++) bars.append(el("i", { class: i < chosen.length ? "on" : "" }));
   const left = round.target - chosen.length;
   wrap.append(el("div", { class: "progress" }, el("div", { class: "row" }, el("span", {}, el("b", { text: chosen.length + " von " + round.target }), " Gerichten gewählt"), el("span", { text: left === 1 ? "noch 1" : "noch " + left })), bars));
+  const qid = "quick-" + round.key;
+  wrap.append(el("label", { class: "quick", for: qid }, el("input", { type: "checkbox", id: qid, checked: state.quick, onchange: e => { state.quick = e.target.checked; savePersons(); } }),
+    el("span", { text: "Nur Gerichte bis 30 Minuten" })));
   const deck = deckFor(round);
   if (!deck.length) {
     wrap.append(el("div", { class: "panel empty-deck" }, el("h3", { text: "Alle Karten angeschaut" }),
-      el("p", { text: "Ihr könnt die abgelehnten Gerichte nochmal anschauen oder neue Vorschläge holen." }),
+      el("p", { text: state.quick ? "Ihr könnt die abgelehnten Gerichte nochmal anschauen, oben auch längere Gerichte zulassen oder neue Vorschläge holen." : "Ihr könnt die abgelehnten Gerichte nochmal anschauen oder neue Vorschläge holen." }),
       el("button", { type: "button", class: "btn", text: "Abgelehnte nochmal zeigen", onclick: () => resetNo(round) })));
     const ai = aiRow(); if (ai) wrap.append(ai);
     main.append(wrap); return;
@@ -571,7 +655,7 @@ function cardEl(r, depth) {
     art(r),
     el("div", { class: "body" },
       el("div", { class: "meta" }, el("span", { class: "pill", html: ICON.clock + r.time + " Min." }), el("span", { class: "pill", html: ICON.list + shown.length + " Zutaten" }), (r.tags || []).slice(0, 1).map(x => el("span", { class: "pill", text: x })), r.ai ? el("span", { class: "pill ai", html: ICON.spark + "Neue Idee" }) : null),
-      el("h3", { text: r.name }), el("p", { text: r.desc }),
+      el("h3", { text: r.name }), r.src && r.src.site ? el("div", { class: "by", text: "Rezept von " + r.src.by }) : null, el("p", { text: r.desc }),
       el("div", { class: "ings", text: "Mit " + shown.join(", ") }),
       el("div", { class: "foot" }, el("button", { type: "button", class: "link", text: "Rezept ansehen", onclick: e => { e.stopPropagation(); openRecipe(r.id); } }))));
 }
@@ -686,6 +770,7 @@ function openRecipe(id) {
   const content = el("div", { class: "content" },
     el("div", { class: "meta" }, el("span", { class: "pill", html: ICON.clock + r.time + " Min." }), el("span", { class: "pill", text: "für " + state.persons + " Personen" }), r.ai ? el("span", { class: "pill ai", html: ICON.spark + "Neue Idee" }) : null),
     el("h2", { id: "dlgTitle", text: r.name }), el("p", { class: "desc", text: r.desc }),
+    r.src ? el("p", { class: "source" }, r.src.by ? "Rezept von " + r.src.by + (r.src.site ? " · " + r.src.site : "") + " · " : "", el("a", { href: r.src.url, target: "_blank", rel: "noopener", text: "Original ansehen (Englisch)" })) : null,
     el("div", { class: "cols" }, el("div", {}, el("h4", { text: "Zutaten" }), el("table", { class: "ing" }, tbody)), el("div", {}, el("h4", { text: "Zubereitung" }), steps)));
   const round = ROUNDS.find(x => x.key === activeRound);
   if (dow >= round.from && chosenIn(round.rid).length < round.target && !(roundData(round.rid).votes || {})[id]) {
@@ -785,8 +870,11 @@ render();
     state.custom = next; render();
   });
   db.doc("settings/family").onSnapshot(d => {
-    const p = Number((d.data() || {}).persons);
-    if (p >= 1 && p <= 12 && p !== state.persons) { state.persons = p; render(); }
+    const v = d.data() || {}, p = Number(v.persons);
+    let changed = false;
+    if (p >= 1 && p <= 12 && p !== state.persons) { state.persons = p; changed = true; }
+    if (typeof v.quick === "boolean" && v.quick !== state.quick) { state.quick = v.quick; changed = true; }
+    if (changed) render();
   });
 })();
 </script>
