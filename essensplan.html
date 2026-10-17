@@ -66,6 +66,9 @@ header { display: flex; flex-wrap: wrap; justify-content: space-between; align-i
 .brand svg { width: 22px; height: 22px; }
 h1 { font-size: clamp(30px, 5vw, 42px); line-height: 1.1; }
 .dates { color: var(--muted); margin: 4px 0 0; }
+.weeksw { display: inline-flex; gap: 4px; margin-top: 12px; padding: 4px; background: var(--surface-2); border-radius: 999px; }
+.weeksw button { border: 0; background: transparent; padding: 7px 14px; border-radius: 999px; font-size: 14px; font-weight: 600; color: var(--muted); cursor: pointer; }
+.weeksw button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
 .persons { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 8px 6px 16px; }
 .persons span { color: var(--muted); font-size: 15px; }
 .persons b { font-variant-numeric: tabular-nums; min-width: 1.4em; text-align: center; font-size: 18px; }
@@ -323,6 +326,7 @@ ol.steps li::before { background: var(--accent); color: var(--accent-ink); }
       <div class="brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/></svg>Essensplan</div>
       <h1 id="weekTitle">Diese Woche</h1>
       <p class="dates" id="dates"></p>
+      <div class="weeksw" id="weekSwitch" role="group" aria-label="Woche wählen"></div>
     </div>
     <div class="persons" role="group" aria-label="Anzahl Personen">
       <span>Personen</span>
@@ -627,14 +631,20 @@ function isoWeek(d) {
 }
 const now = new Date();
 const dow = (now.getDay() + 6) % 7;
-const WEEK = isoWeek(now);
-const monday = new Date(now); monday.setDate(now.getDate() - dow);
-const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
-const lastWeek = isoWeek(new Date(now.getTime() - 7 * 864e5)).id;
-const ROUNDS = [
-  { key: "mo", rid: WEEK.id + "-mo", title: "Montag-Einkauf", target: 3, from: 0 },
-  { key: "mi", rid: WEEK.id + "-mi", title: "Donnerstag-Einkauf", target: 2, from: 0 }
-];
+// weekOffset 0 = diese Woche, 1 = nächste Woche. Jede Woche hat eigene Runden (rid enthält die Wochen-Nummer).
+let weekOffset = 0, WEEK, monday, sunday, lastWeek, ROUNDS;
+function setWeek(offset) {
+  weekOffset = offset;
+  monday = new Date(now); monday.setDate(now.getDate() - dow + 7 * offset);
+  sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
+  WEEK = isoWeek(monday);
+  lastWeek = isoWeek(new Date(monday.getTime() - 7 * 864e5)).id;
+  ROUNDS = [
+    { key: "mo", rid: WEEK.id + "-mo", title: "Montag-Einkauf", target: 3, from: 0 },
+    { key: "mi", rid: WEEK.id + "-mi", title: "Donnerstag-Einkauf", target: 2, from: 0 }
+  ];
+}
+setWeek(0);
 const UNITS = ["g", "ml", "Stk", "EL", "TL", "Zehe", "Bund", "Dose", "Pkg", "Glas", "Topf", ""];
 
 // ================= Zustand =================
@@ -748,16 +758,25 @@ function art(r, cls = "art") {
     r.src && r.src.photoAtSource ? el("span", { class: "cap", text: "Foto im Original auf " + r.src.site }) : null);
 }
 
-(function headerInit() {
+function renderHeader() {
   const f = d => d.toLocaleDateString("de-AT", { day: "numeric", month: "long" });
   $("weekTitle").textContent = "Woche " + WEEK.w;
   $("dates").textContent = f(monday) + " bis " + f(sunday);
-})();
+  $("weekHead").textContent = weekOffset ? "Was es nächste Woche gibt" : "Was es diese Woche gibt";
+  const sw = $("weekSwitch"); sw.innerHTML = "";
+  [[0, "Diese Woche"], [1, "Nächste Woche"]].forEach(([o, label]) =>
+    sw.append(el("button", { type: "button", "aria-pressed": String(weekOffset === o), text: label, onclick: () => {
+      if (weekOffset === o) return;
+      setWeek(o);
+      activeRound = o ? "mo" : (dow >= 3 ? "mi" : "mo");
+      render();
+    } })));
+}
 
 function render() {
   if (dragging) { renderQueued = true; return; }
   $("pCount").textContent = state.persons;
-  renderSlots(); renderTabs(); renderRound();
+  renderHeader(); renderSlots(); renderTabs(); renderRound();
 }
 function renderSlots() {
   const s = $("slots"); s.innerHTML = "";
