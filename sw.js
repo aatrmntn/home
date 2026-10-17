@@ -1,6 +1,6 @@
 // Offline-Speicher: Seite und Bilder bleiben am Handy, auch ohne Internet.
 // Die Seite selbst wird immer zuerst frisch geholt, damit neue Rezepte sofort da sind.
-const CACHE = "mampfplan-v1";
+const CACHE = "mampfplan-v2";
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(["./", "manifest.webmanifest", "icons/icon-192.png"])));
   self.skipWaiting();
