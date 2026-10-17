@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Essensplan</title>
-<meta name="theme-color" content="#f5ecf2">
+<meta name="theme-color" content="#eaeae8">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Essensplan">
@@ -17,40 +17,40 @@
 <style>
 /* Layout: ruhige Küchen-App. Kopf mit Woche + Personen, Wochenübersicht (5 Teller), Umschalter Montag/Donnerstag,
    darunter entweder der Karten-Stapel zum Wischen oder (fertig) Gerichte links + Einkaufsliste nach Regalen rechts. */
-/* Look "Pflaume fein": zarte Pflaumen- und Aprikosentöne, feine Linien, elegante Serifen-Überschriften. Kein Grün. */
+/* Look "Stein": ruhige Hell- und Mittelgrautöne, Graphit als Akzent, feine Linien, elegante Serifen-Überschriften. */
 :root {
-  --bg: #faf7f8;
+  --bg: #f4f4f3;
   --surface: #ffffff;
-  --surface-2: #f3edf1;
-  --ink: #2a2129;
-  --muted: #7a6d77;
-  --line: #ece3e9;
-  --accent: #7d4d82;
+  --surface-2: #ececeb;
+  --ink: #242424;
+  --muted: #737371;
+  --line: #e2e2e0;
+  --accent: #3e3e3d;
   --accent-ink: #ffffff;
-  --accent-soft: #f4ebf4;
-  --no: #b9533f;
-  --no-soft: #fbece7;
-  --sun: #e9b46a;
-  --sun-soft: #fbf1e3;
-  --on-sun: #3d2a0e;
-  --hero: #f5ecf2;
-  --hero-ink: #2a2129;
-  --shadow: 0 1px 2px rgba(42, 33, 41, .04), 0 12px 32px rgba(42, 33, 41, .07);
-  --shadow-sm: 0 1px 2px rgba(42, 33, 41, .04), 0 3px 10px rgba(42, 33, 41, .04);
+  --accent-soft: #ebebea;
+  --no: #a85a4a;
+  --no-soft: #f6ecea;
+  --sun: #cfcfcc;
+  --sun-soft: #efefed;
+  --on-sun: #242424;
+  --hero: #eaeae8;
+  --hero-ink: #242424;
+  --shadow: 0 1px 2px rgba(36, 36, 36, .04), 0 12px 32px rgba(36, 36, 36, .06);
+  --shadow-sm: 0 1px 2px rgba(36, 36, 36, .04), 0 3px 10px rgba(36, 36, 36, .04);
   --font-display: "Cormorant Garamond", "Garamond", Georgia, serif;
   --font-ui: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
   --radius: 18px;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #141114; --surface: #1d191d; --surface-2: #272127; --ink: #f1eaef; --muted: #aa9fa8; --line: #332b32;
-  --accent: #d3acd6; --accent-ink: #211522; --accent-soft: #33263a; --no: #ec9a85; --no-soft: #3a2623;
-  --sun: #eec283; --sun-soft: #33291c; --on-sun: #2c1e08; --hero: #221b22; --hero-ink: #f1eaef;
+  --bg: #141414; --surface: #1c1c1c; --surface-2: #262626; --ink: #ededec; --muted: #a3a3a1; --line: #313130;
+  --accent: #e4e4e2; --accent-ink: #161616; --accent-soft: #2b2b2a; --no: #e39a8a; --no-soft: #3a2724;
+  --sun: #555553; --sun-soft: #242424; --on-sun: #f0f0ef; --hero: #1e1e1e; --hero-ink: #ededec;
   --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 32px rgba(0,0,0,.35); --shadow-sm: 0 1px 2px rgba(0,0,0,.25), 0 3px 10px rgba(0,0,0,.2); color-scheme: dark;
 } }
 :root[data-theme="dark"] {
-  --bg: #141114; --surface: #1d191d; --surface-2: #272127; --ink: #f1eaef; --muted: #aa9fa8; --line: #332b32;
-  --accent: #d3acd6; --accent-ink: #211522; --accent-soft: #33263a; --no: #ec9a85; --no-soft: #3a2623;
-  --sun: #eec283; --sun-soft: #33291c; --on-sun: #2c1e08; --hero: #221b22; --hero-ink: #f1eaef;
+  --bg: #141414; --surface: #1c1c1c; --surface-2: #262626; --ink: #ededec; --muted: #a3a3a1; --line: #313130;
+  --accent: #e4e4e2; --accent-ink: #161616; --accent-soft: #2b2b2a; --no: #e39a8a; --no-soft: #3a2724;
+  --sun: #555553; --sun-soft: #242424; --on-sun: #f0f0ef; --hero: #1e1e1e; --hero-ink: #ededec;
   --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 32px rgba(0,0,0,.35); --shadow-sm: 0 1px 2px rgba(0,0,0,.25), 0 3px 10px rgba(0,0,0,.2); color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -252,11 +252,11 @@ ol.steps li::before { content: counter(s); width: 26px; height: 26px; border-rad
 .close svg { width: 18px; height: 18px; }
 .sheet-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
 
-/* ================= Look "Pflaume fein" (liegt über den Grundregeln oben) ================= */
+/* ================= Look "Stein" (liegt über den Grundregeln oben) ================= */
 h1, h2, h3 { font-weight: 600; letter-spacing: -0.005em; }
 .wrap { padding-block: 16px 72px; }
 .eyebrow, .slot .tag, .group h4, .cols h4, .gkbox h4 { letter-spacing: .12em; font-weight: 600; }
-/* Kopf: zarte Fläche mit feinem Aprikosen-Kreis */
+/* Kopf: ruhige graue Fläche mit feinem Kreis */
 header { position: relative; overflow: hidden; background: var(--hero); color: var(--hero-ink); border-radius: 22px; padding: 26px 28px 24px; margin-bottom: 30px; align-items: center; isolation: isolate; border: 1px solid var(--line); }
 header::before, header::after { content: ""; position: absolute; border-radius: 50%; z-index: -1; pointer-events: none; }
 header::before { width: 240px; height: 240px; right: -60px; top: -110px; border: 1px solid var(--sun); }
