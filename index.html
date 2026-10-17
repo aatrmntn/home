@@ -141,6 +141,14 @@ button.slot:hover { box-shadow: var(--shadow); }
 .btn svg { width: 18px; height: 18px; }
 .btn.next { width: 100%; justify-content: flex-start; text-align: left; }
 .btn.next b { font-weight: 800; }
+.btn.wide { width: 100%; }
+.gkbox { margin: 10px 0 4px; display: grid; gap: 8px; }
+.gkbox h4 { margin: 6px 0 0; font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.gknote { margin: 0; font-size: 14px; color: var(--muted); }
+.gknote a { color: var(--accent); font-weight: 700; }
+.gkok { margin: 0; font-weight: 600; color: var(--accent); }
+.gkerr { margin: 0; font-weight: 600; color: var(--no); }
+ul.gkpicks li { grid-template-columns: 24px minmax(0, 1fr) auto; }
 .ai-row { margin-top: 18px; text-align: center; max-width: 420px; }
 .ai-row .q { color: var(--muted); font-size: 14px; margin-bottom: 6px; }
 .ai-status { color: var(--muted); font-size: 14px; margin-top: 8px; min-height: 1.4em; }
@@ -822,6 +830,7 @@ function renderDone(main, round, ids) {
       el("span", { html: ICON.cart }), el("span", {}, "Nächste Zutat: ", el("b", { text: next.n.replace(/\s*\(.*?\)\s*/g, " ").trim() }))) : null,
     el("a", { class: "btn" + (next ? "" : " primary"), href: "https://www.gurkerl.at/", target: "_blank", rel: "noopener", html: ICON.cart + (next ? "gurkerl.at öffnen" : "Jetzt bei Gurkerl bestellen") }),
     el("button", { type: "button", class: "btn", html: ICON.copy + "Liste kopieren", onclick: () => copyList(buy, have, copyStatus) }), copyStatus));
+  card.append(gurkerlBox(round, buy, have));
   AISLE_ORDER.forEach(a => {
     const items = buy.filter(e => e.aisle === a); if (!items.length) return;
     const ul = el("ul", { class: "items" }); items.forEach(e => ul.append(shopRow(round, e, have)));
@@ -834,6 +843,89 @@ function renderDone(main, round, ids) {
   card.append(el("p", { class: "save-note", text: db ? "Alle, die diesen Plan offen haben, sehen dieselbe Liste." : "Gespeichert in diesem Browser." }));
   grid.append(card);
   main.append(grid);
+}
+// ---------- Gurkerl-Warenkorb automatisch befüllen (nur auf der claude.ai-Seite, über den Gurkerl-Connector) ----------
+const GK = "Gurkerl";
+let mcp = null;
+const gkState = {};
+const gkName = n => n.replace(/\s*\(.*?\)\s*/g, " ").trim();
+const gkPayload = res => { const p = res && (res.payload !== undefined ? res.payload : res); return p && p.result ? p.result : p; };
+function gkError(e) {
+  const c = e && e.code;
+  if (c === "server_not_connected" || c === "selection_required") return "Gurkerl ist mit Claude noch nicht verbunden. Verbinde es auf claude.ai unter Einstellungen → Connectors.";
+  if (c === "needs_reauth") return "Die Gurkerl-Anmeldung ist abgelaufen. Verbinde Gurkerl auf claude.ai unter Einstellungen → Connectors neu.";
+  if (c === "not_in_manifest" || c === "not_granted" || c === "consent_required" || c === "approval_required") return "Du hast dieser Seite Gurkerl nicht erlaubt. Tippe nochmal auf den Knopf und erlaube es.";
+  if (c === "tool_error") return "Gurkerl hat einen Fehler gemeldet: " + (e.message || "unbekannt");
+  if (c === "server_unavailable") return "Gurkerl antwortet gerade nicht. Probier es gleich nochmal.";
+  return "Das hat nicht geklappt. Probier es gleich nochmal.";
+}
+async function gkSearch(round, items) {
+  const st = gkState[round.rid] = { phase: "searching", picks: [], missing: [] }; render();
+  try {
+    for (let i = 0; i < items.length; i += 4) {
+      const chunk = items.slice(i, i + 4);
+      const res = await mcp.callTool(GK, "batch_search_products", { context: "Zutaten für den Wochen-Essensplan finden.", queries: chunk.map(e => ({ keyword: gkName(e.n) })) });
+      const results = (gkPayload(res) || {}).results || [];
+      chunk.forEach((e, j) => {
+        const prods = ((results[j] || {}).products || []).filter(p => p && p.inStock && p.productId);
+        const pick = prods.find(p => p.favourite) || prods[0];
+        if (pick) st.picks.push({ key: e.key, n: e.n, on: true, qty: ["Dose", "Glas", "Pkg"].includes(e.u) ? Math.max(1, Math.min(6, buyQty(e.q, e.u))) : 1, id: pick.productId, name: String(pick.productName || ""), amount: String(pick.textualAmount || ""), price: Number(pick.price) || 0 });
+        else st.missing.push(e.n);
+      });
+      render();
+    }
+    st.phase = "review";
+  } catch (err) { st.phase = "error"; st.msg = gkError(err); }
+  render();
+}
+async function gkAdd(round) {
+  const st = gkState[round.rid]; const chosen = st.picks.filter(p => p.on);
+  if (!chosen.length) return;
+  st.phase = "adding"; render();
+  try {
+    await mcp.callTool(GK, "add_items_to_cart", { context: "Zutaten für den Wochen-Essensplan in den Warenkorb legen.", items: chosen.map(p => ({ productId: p.id, quantity: p.qty })) });
+    st.phase = "done"; st.added = chosen.length;
+    const patch = {}; chosen.forEach(p => { patch[p.key] = true; });
+    patchRound(round.rid, { have: patch });
+  } catch (err) { st.phase = "error"; st.msg = gkError(err) + " Schau bitte bei Gurkerl nach, ob schon etwas im Warenkorb liegt, bevor du es nochmal versuchst."; }
+  render();
+}
+function gurkerlBox(round, buy, have) {
+  const box = el("div", { class: "gkbox" });
+  if (!mcp) {
+    if (!window.claude) box.append(el("p", { class: "gknote" }, "Alles auf einmal in den Gurkerl-Warenkorb legen geht auf der ", el("a", { href: FAMILY_URL, target: "_blank", rel: "noopener", text: "gemeinsamen Seite" }), "."));
+    return box;
+  }
+  const open = buy.filter(e => !have[e.key]);
+  const st = gkState[round.rid] || { phase: "idle" };
+  const fmtEur = v => v.toFixed(2).replace(".", ",") + " €";
+  if (st.phase === "idle" || st.phase === "done" || st.phase === "error") {
+    if (st.phase === "done") box.append(el("p", { class: "gkok", text: st.added + " Produkte liegen jetzt in deinem Gurkerl-Warenkorb. Prüfe Mengen und bestelle in der Gurkerl-App." }));
+    if (st.phase === "error") box.append(el("p", { class: "gkerr", text: st.msg }));
+    if (open.length) box.append(el("button", { type: "button", class: "btn primary wide", html: ICON.cart + "Alles in den Gurkerl-Warenkorb", onclick: () => gkSearch(round, open) }),
+      el("p", { class: "gknote", text: "Claude sucht bei Gurkerl ein Produkt pro Zutat. Du siehst die Liste, bevor etwas in den Warenkorb kommt." }));
+    else if (st.phase !== "done") box.append(el("p", { class: "gknote", text: "Alles ist abgehakt." }));
+    return box;
+  }
+  if (st.phase === "searching") { box.append(el("p", { class: "gknote", text: "Suche bei Gurkerl … " + (st.picks.length + st.missing.length) + " von " + open.length })); return box; }
+  const chosen = st.picks.filter(p => p.on);
+  box.append(el("h4", { text: "Vorschlag von Gurkerl" }));
+  const ul = el("ul", { class: "items gkpicks" });
+  st.picks.forEach(p => {
+    const id = "gk-" + round.key + "-" + p.key;
+    ul.append(el("li", {},
+      el("input", { type: "checkbox", id, checked: p.on, disabled: st.phase === "adding", onchange: () => { p.on = !p.on; render(); } }),
+      el("label", { class: "iname", for: id }, (p.qty > 1 ? p.qty + " × " : "") + p.name, el("small", { text: "für " + p.n + (p.amount ? " · " + p.amount : "") })),
+      el("span", { class: "qty", text: fmtEur(p.price * p.qty) })));
+  });
+  box.append(ul);
+  if (st.missing.length) box.append(el("p", { class: "gknote", text: "Nicht gefunden: " + st.missing.join(", ") + ". Diese bitte selbst mit „Gurkerl“ suchen." }));
+  const sum = chosen.reduce((a, p) => a + p.price * p.qty, 0);
+  box.append(el("div", { class: "tools" },
+    el("button", { type: "button", class: "btn primary", disabled: st.phase === "adding" || !chosen.length, html: ICON.cart + (st.phase === "adding" ? "Wird hinzugefügt …" : chosen.length + " Produkte hinzufügen · " + fmtEur(sum)), onclick: () => gkAdd(round) }),
+    el("button", { type: "button", class: "btn", disabled: st.phase === "adding", text: "Abbrechen", onclick: () => { delete gkState[round.rid]; render(); } })));
+  box.append(el("p", { class: "gknote", text: "Meist 1 Packung pro Zutat, Mengen bitte bei Gurkerl prüfen. Bestellt wird erst, wenn du in der Gurkerl-App bestellst." }));
+  return box;
 }
 function shopRow(round, e, have) {
   const got = !!have[e.key];
@@ -967,8 +1059,9 @@ render();
 renderInfo();
 (async () => {
   if (!window.claude || !window.claude.use) return;
-  const [shared, s] = await Promise.all([window.claude.use("db"), window.claude.use("sample")]);
+  const [shared, s, m] = await Promise.all([window.claude.use("db"), window.claude.use("sample"), window.claude.use("mcp")]);
   if (s) { sample = s; render(); }
+  if (m) { mcp = m; render(); }
   if (!shared) return;
   db = shared;
   state.rounds = {}; state.custom = {};
