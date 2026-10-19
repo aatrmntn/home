@@ -329,6 +329,21 @@ button.slot:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
 .sheet h2 { font-size: 34px; }
 ol.steps li::before { background: transparent; border: 1px solid var(--accent); color: var(--accent); font-weight: 600; }
 @media (prefers-reduced-motion: reduce) { button.slot, .seg button { transition: none; } button.slot:hover { transform: none; } }
+/* Schon gewählte Gerichte beim Wischen + Auswahl mitnehmen */
+.chosen { width: 100%; max-width: 420px; margin: 0 0 14px; display: grid; gap: 6px; }
+.chosen .lbl { font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.chosen ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.chosen li { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px 4px 4px 16px; }
+.chosen li .link { text-align: left; color: var(--ink); text-decoration: none; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chosen li .out { border: 1px solid var(--line); background: transparent; border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; }
+.chosen li .out:hover { border-color: var(--accent); color: var(--accent); }
+.again { margin-top: 10px; font-size: 14px; color: var(--muted); }
+.pick .row .btn.small { min-height: 32px; padding: 0 12px; font-size: 13px; }
+.carry { display: grid; gap: 8px; }
+.carry input { width: 100%; min-height: 44px; border: 1px solid var(--line); border-radius: 12px; padding: 0 14px; font: inherit; background: var(--surface); color: var(--ink); }
+details.carry-box { max-width: 560px; margin: 0 0 20px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 12px 16px; }
+details.carry-box summary { cursor: pointer; font-weight: 600; }
+details.carry-box p { margin: 8px 0; font-size: 14px; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -664,7 +679,7 @@ const UNITS = ["g", "ml", "Stk", "EL", "TL", "Zehe", "Bund", "Dose", "Pkg", "Gla
 const state = { rounds: {}, custom: {}, persons: 4, quick: true };
 let db = null, sample = null;
 let activeRound = dow >= 3 ? "mi" : "mo";
-let dragging = false, renderQueued = false;
+let dragging = false, renderQueued = false, carryOpen = false, carryMsg = "";
 
 const pool = () => RECIPES.concat(Object.values(state.custom));
 const byId = id => pool().find(r => r.id === id);
@@ -815,6 +830,7 @@ function renderTabs() {
 }
 function renderRound() {
   const main = $("round"); main.innerHTML = "";
+  const cb = carryBox(); if (cb) { if (carryOpen) cb.open = true; cb.addEventListener("toggle", () => { carryOpen = cb.open; }); main.append(cb); }
   const round = ROUNDS.find(r => r.key === activeRound);
   if (dow < round.from) {
     main.append(el("div", { class: "panel locked" }, el("h3", { text: "Später geht's weiter" }),
@@ -832,6 +848,13 @@ function renderSwipe(main, round, chosen) {
   const bars = el("div", { class: "bars" }); for (let i = 0; i < round.target; i++) bars.append(el("i", { class: i < chosen.length ? "on" : "" }));
   const left = round.target - chosen.length;
   wrap.append(el("div", { class: "progress" }, el("div", { class: "row" }, el("span", {}, el("b", { text: chosen.length + " von " + round.target }), " Gerichten gewählt"), el("span", { text: left === 1 ? "noch 1" : "noch " + left })), bars));
+  if (chosen.length) {
+    const ul = el("ul");
+    chosen.forEach(id => { const r = byId(id); ul.append(el("li", {},
+      el("button", { type: "button", class: "link", text: r.name, onclick: () => openRecipe(id) }),
+      el("button", { type: "button", class: "out", text: "Rausnehmen", "aria-label": "Rausnehmen: " + r.name, onclick: () => unpick(round, id) }))); });
+    wrap.append(el("div", { class: "chosen" }, el("span", { class: "lbl", text: "Schon gewählt" }), ul));
+  }
   const qid = "quick-" + round.key;
   wrap.append(el("label", { class: "quick", for: qid }, el("input", { type: "checkbox", id: qid, checked: state.quick, onchange: e => { state.quick = e.target.checked; savePersons(); } }),
     el("span", { text: "Nur Gerichte bis 30 Minuten" })));
@@ -856,6 +879,8 @@ function renderSwipe(main, round, chosen) {
     el("button", { type: "button", class: "act no", html: ICON.x + "<span>Nein</span>", "aria-label": "Nein: " + top.name, onclick: () => flyAndVote(stage.lastChild, top, round, "n") }),
     el("button", { type: "button", class: "act yes", html: ICON.heart + "<span>Ja, kochen wir</span>", "aria-label": "Ja: " + top.name, onclick: () => flyAndVote(stage.lastChild, top, round, "y") })));
   wrap.append(el("p", { class: "hint", text: "Wischen geht auch: rechts für Ja, links für Nein. Am Computer gehen die Pfeiltasten. " + (deck.length > 1 ? "Noch " + deck.length + " Gerichte im Stapel." : "Das ist das letzte Gericht.") }));
+  if (Object.values(roundData(round.rid).votes || {}).includes("n"))
+    wrap.append(el("p", { class: "again" }, "Doch ein „Nein“ bereut? ", el("button", { type: "button", class: "link", text: "Abgelehnte wieder in den Stapel", onclick: () => resetNo(round) })));
   const ai = aiRow(); if (ai) wrap.append(ai);
   main.append(wrap);
 }
@@ -900,6 +925,8 @@ function flyAndVote(card, r, round, v) {
   const st = card.querySelector(v === "y" ? ".stamp.yes" : ".stamp.no"); if (st) st.style.opacity = 1;
   setTimeout(() => { dragging = false; renderQueued = false; done(); }, 280);
 }
+// Ein gewähltes Gericht wieder rausnehmen. Es kommt ans Ende vom Stapel (nicht gleich wieder oben).
+function unpick(round, id) { patchRound(round.rid, { votes: { [id]: "n" } }); }
 function resetNo(round) {
   const patch = {};
   Object.entries(roundData(round.rid).votes || {}).forEach(([k, v]) => { if (v === "n") patch[k] = ""; });
@@ -915,9 +942,9 @@ function renderDone(main, round, ids) {
     picks.append(el("div", { class: "pick" }, art(r),
       el("div", { class: "txt" }, el("h3", { text: r.name }),
         el("div", { class: "row" }, el("button", { type: "button", class: "link", text: "Rezept", onclick: () => openRecipe(id) }),
-          el("button", { type: "button", class: "link quiet", text: "Austauschen", onclick: () => patchRound(round.rid, { votes: { [id]: "n" } }) })))));
+          el("button", { type: "button", class: "btn small", text: "Austauschen", onclick: () => unpick(round, id) })))));
   });
-  grid.append(el("section", {}, el("h2", { text: "Eure Gerichte" }), el("p", { class: "lead", text: "Tippe auf „Rezept“ für Zutaten und Zubereitung." }), picks));
+  grid.append(el("section", {}, el("h2", { text: "Eure Gerichte" }), el("p", { class: "lead", text: "Tippe auf „Rezept“ für Zutaten und Zubereitung. Mit „Austauschen“ wischst du für dieses Gericht ein neues aus." }), picks));
 
   const { buy, basics } = shoppingList(ids);
   const have = roundData(round.rid).have || {};
@@ -999,7 +1026,11 @@ async function gkAdd(round) {
 function gurkerlBox(round, buy, have) {
   const box = el("div", { class: "gkbox" });
   if (!mcp) {
-    if (!window.claude) box.append(el("p", { class: "gknote" }, "Alles auf einmal in den Gurkerl-Warenkorb legen geht auf der ", el("a", { href: FAMILY_URL, target: "_blank", rel: "noopener", text: "gemeinsamen Seite" }), "."));
+    if (!window.claude) {
+      const status = el("span", { class: "copied", "aria-live": "polite" });
+      box.append(el("button", { type: "button", class: "btn primary wide", html: ICON.cart + "Auswahl mitnehmen und Warenkorb befüllen", onclick: () => carryOut(round, status) }),
+        el("p", { class: "gknote", text: "Alles auf einmal in den Gurkerl-Warenkorb legen geht auf der gemeinsamen Seite. Dieser Knopf kopiert deine Gerichte und öffnet die Seite. Dort bei „Auswahl vom Handy übernehmen“ einfügen." }), status);
+    }
     return box;
   }
   const open = buy.filter(e => !have[e.key]);
@@ -1032,6 +1063,47 @@ function gurkerlBox(round, buy, have) {
     el("button", { type: "button", class: "btn", disabled: st.phase === "adding", text: "Abbrechen", onclick: () => { delete gkState[round.rid]; render(); } })));
   box.append(el("p", { class: "gknote", text: "Meist 1 Packung pro Zutat, Mengen bitte bei Gurkerl prüfen. Bestellt wird erst, wenn du in der Gurkerl-App bestellst." }));
   return box;
+}
+// ---------- Auswahl zwischen Handy-App und gemeinsamer Seite mitnehmen ----------
+// Die Handy-App speichert nur im Browser, die gemeinsame Seite in der Familien-Datenbank.
+// Darum geben wir die Gerichte als kurzen Text mit (Runde + Rezept-Kürzel), z.B. "Essensplan 2026-W43-mo: carbonara,alfredo".
+const carryText = round => "Essensplan " + round.rid + ": " + chosenIn(round.rid).slice(0, round.target).join(",");
+function carryOut(round, status) {
+  const text = carryText(round);
+  const ok = () => { status.textContent = "Gerichte kopiert. Auf der gemeinsamen Seite einfügen."; };
+  try { navigator.clipboard.writeText(text).then(ok, () => fallbackCopy(text, ok)); } catch (e) { fallbackCopy(text, ok); }
+  window.open(FAMILY_URL + "#plan=" + encodeURIComponent(round.rid + ":" + chosenIn(round.rid).slice(0, round.target).join(",")), "_blank", "noopener");
+}
+function parseCarry(text) {
+  const m = /(\d{4}-W\d{2}-(?:mo|mi))\s*:\s*([a-z0-9,\-]+)/i.exec((() => { try { return decodeURIComponent(String(text || "")); } catch (e) { return String(text || ""); } })());
+  if (!m) return null;
+  const ids = m[2].split(",").map(x => x.trim()).filter(id => byId(id));
+  return ids.length ? { rid: m[1], ids } : null;
+}
+function carryIn(text) {
+  const c = parseCarry(text);
+  if (!c) return "Das sieht nicht nach einer Auswahl aus der Handy-App aus. Kopiere sie dort mit „Auswahl mitnehmen“.";
+  const [wid, key] = [c.rid.slice(0, 8), c.rid.slice(9)];
+  const off = [0, 1].find(o => { const keep = weekOffset; setWeek(o); const hit = WEEK.id === wid; setWeek(keep); return hit; });
+  if (off === undefined) return "Diese Auswahl ist für eine andere Woche und wurde nicht übernommen.";
+  setWeek(off); activeRound = key;
+  const round = ROUNDS.find(r => r.key === key);
+  const votes = {};
+  chosenIn(round.rid).forEach(id => { if (!c.ids.includes(id)) votes[id] = ""; });
+  c.ids.slice(0, round.target).forEach(id => { votes[id] = "y"; });
+  patchRound(round.rid, { votes });
+  return c.ids.length + " Gerichte übernommen.";
+}
+function carryBox() {
+  if (!db) return null;
+  const msg = el("p", { "aria-live": "polite", text: carryMsg });
+  const input = el("input", { type: "text", inputmode: "text", autocomplete: "off", placeholder: "Hier einfügen", "aria-label": "Auswahl aus der Handy-App einfügen" });
+  const go = () => { if (input.value.trim()) { const t = carryIn(input.value); carryMsg = msg.textContent = t; input.value = ""; render(); } };
+  input.addEventListener("paste", () => setTimeout(go, 0));
+  input.addEventListener("keydown", e => { if (e.key === "Enter") go(); });
+  return el("details", { class: "carry-box" }, el("summary", { text: "Auswahl vom Handy übernehmen" }),
+    el("p", { text: "In der Handy-App auf „Auswahl mitnehmen und Warenkorb befüllen“ tippen. Dann hier lange tippen und „Einfügen“ wählen." }),
+    el("div", { class: "carry" }, input, el("button", { type: "button", class: "btn", text: "Übernehmen", onclick: go })), msg);
 }
 function shopRow(round, e, have) {
   const got = !!have[e.key];
@@ -1076,6 +1148,9 @@ function openRecipe(id) {
       el("button", { type: "button", class: "btn primary", html: ICON.heart + "Ja, kochen wir", onclick: () => { dlg.close(); patchRound(round.rid, { votes: { [id]: "y" } }); } }),
       el("button", { type: "button", class: "btn", text: "Nein danke", onclick: () => { dlg.close(); patchRound(round.rid, { votes: { [id]: "n" } }); } })));
   }
+  const inRound = ROUNDS.find(x => chosenIn(x.rid).includes(id));
+  if (inRound) content.append(el("div", { class: "sheet-actions" },
+    el("button", { type: "button", class: "btn", text: "Aus dem Plan rausnehmen", onclick: () => { dlg.close(); activeRound = inRound.key; unpick(inRound, id); } })));
   sheet.append(el("button", { type: "button", class: "close", "aria-label": "Schließen", html: ICON.x, onclick: () => dlg.close() }), art(r), content);
   try { dlg.showModal(); } catch (e) { dlg.setAttribute("open", ""); }
   sheet.scrollTop = 0;
@@ -1172,10 +1247,12 @@ renderInfo();
   db = shared;
   state.rounds = {}; state.custom = {};
   render();
+  let first = true;
   db.collection("rounds").onSnapshot(snap => {
     const next = {};
     snap.docs.forEach(d => { known.add(d.id); const v = d.data() || {}; next[d.id] = { votes: { ...(v.votes || {}) }, have: { ...(v.have || {}) } }; });
     state.rounds = next; render();
+    if (first) { first = false; try { const h = /plan=([^&]+)/.exec(location.hash); if (h && parseCarry(h[1])) { carryIn(h[1]); history.replaceState(null, "", location.pathname + location.search); } } catch (e) {} }
   });
   db.collection("custom").onSnapshot(snap => {
     const next = {};
