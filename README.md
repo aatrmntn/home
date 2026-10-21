@@ -8,4 +8,4 @@ Aufs Handy legen: Seite im Browser öffnen, dann „Zum Home-Bildschirm“ (iPho
 
 ## Auch hier
 
-- `urlaubsplaner/`: **NW7 Urlaubsplaner** für Familie und Personal (läuft auf AWS, Anleitung im Ordner).
+- `urlaubsplaner/`: **NW7 Urlaubsplaner** für Familie und Personal. Online: https://d2o5zlwweig8bj.cloudfront.net/ (nur mit Anmeldung, Anleitung im Ordner).

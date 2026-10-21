@@ -2,6 +2,8 @@
 
 Urlaub von Familie und Personal auf einen Blick, wie der Urlaubsplaner von feminin, nur für zu Hause.
 
+**Live:** <https://d2o5zlwweig8bj.cloudfront.net/> (nur mit Anmeldung)
+
 - **Eltern** (genehmigen): sehen alles, bestätigen oder lehnen Urlaub ab, vergeben Zugänge.
 - **Organisation** (trägt ein): trägt Urlaub für alle ein, pflegt Personen und Ferien, spricht ab.
   Genehmigen kann sie nicht.
