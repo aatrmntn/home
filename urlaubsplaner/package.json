@@ -1,0 +1,29 @@
+{
+  "name": "urlaubsplaner",
+  "private": true,
+  "type": "module",
+  "description": "Urlaubsplaner für die Ordination feminin",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "dev": "node dev/server.js",
+    "bootstrap": "cd infra && cdk bootstrap",
+    "synth": "cd infra && cdk synth",
+    "deploy": "npm test && cd infra && cdk deploy",
+    "user:add": "node scripts/add-user.js"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.1151.0",
+    "@aws-sdk/client-dynamodb": "^3.1151.0",
+    "@aws-sdk/client-sesv2": "^3.1151.0",
+    "@aws-sdk/lib-dynamodb": "^3.1151.0",
+    "@types/node": "^22.20.5",
+    "aws-cdk": "^2.1145.0",
+    "aws-cdk-lib": "^2.273.0",
+    "constructs": "^10.8.1",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3"
+  }
+}

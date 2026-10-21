@@ -5,3 +5,7 @@ Familien-Essensplan fürs Handy: Gerichte aussuchen, Einkaufsliste bekommen, Zut
 Online: https://aatrmntn.github.io/home/
 
 Aufs Handy legen: Seite im Browser öffnen, dann „Zum Home-Bildschirm“ (iPhone: Teilen-Knopf, Android: Menü ⋮).
+
+## Auch hier
+
+- `urlaubsplaner/`: **NW7 Urlaubsplaner** für Familie und Personal (läuft auf AWS, Anleitung im Ordner).

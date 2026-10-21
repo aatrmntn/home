@@ -1,0 +1,8 @@
+{
+  "app": "npx tsx bin/app.ts",
+  "outputsFile": "cdk-outputs.json",
+  "context": {
+    "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
+    "@aws-cdk/core:checkSecretUsage": true
+  }
+}

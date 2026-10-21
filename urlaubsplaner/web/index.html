@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>NW7 · Urlaubsplaner</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Zum Inhalt</a>
+  <header class="top">
+    <div class="brand">
+      <svg class="logo" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path fill="currentColor" d="M16 3 2 15h4v13h8v-8h4v8h8V15h4z"/></svg>
+      <span class="wordmark">NW7</span>
+      <span class="brand-sub">Urlaubsplaner</span>
+    </div>
+    <div class="top-actions" id="top-actions"></div>
+  </header>
+  <main id="main" tabindex="-1">
+    <p class="loading">Wird geladen …</p>
+  </main>
+  <dialog id="drawer" class="drawer" aria-labelledby="drawer-title"></dialog>
+  <dialog id="name-dialog" class="small-dialog" aria-labelledby="name-title"></dialog>
+  <dialog id="extra-dialog" class="small-dialog" aria-labelledby="extra-title"></dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
